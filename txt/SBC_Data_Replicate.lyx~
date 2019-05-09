@@ -1,0 +1,976 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\begin_preamble
+\newenvironment{proof}[1][Proof]{\noindent\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+\def\baselinestretch{1.25}
+\oddsidemargin 10pt \evensidemargin 10pt \topmargin -10pt
+\baselineskip -10pt \textwidth 450pt \textheight 620pt
+\setlength{\parskip}{6pt plus 2pt minus 3pt}
+\renewcommand{\thetable}{\Roman{table}}
+\usepackage{caption}
+\captionsetup{labelfont={sc},font={stretch=0.9},labelsep=endash}
+%\renewcommand{\thefigure}{\SmallCaps{figure}}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,citecolor=blue}
+
+%\hypersetup{colorlinks=true,citecolor=black}
+
+\usepackage{adjustbox}
+
+\usepackage[compact]{titlesec}
+\titlespacing{\section}{0pt}{2ex}{1ex}
+\titlespacing{\subsection}{0pt}{1ex}{0ex}
+\titlespacing{\subsubsection}{0pt}{0.5ex}{0ex}
+\titlespacing{\paragraph}{0pt}{0.5ex}{2ex}
+
+
+
+%\usepackage[nomarkers]{endfloat}
+\usepackage{setspace}
+\usepackage[bottom]{footmisc}
+\usepackage{afterpage}
+\renewcommand\floatpagefraction{.9}
+%\renewcommand\dblfloatpagefraction{.9} % for two column documents
+\renewcommand\topfraction{.9}
+%\renewcommand\dbltopfraction{.9} % for two column documents
+\renewcommand\bottomfraction{.9}
+\renewcommand{\thetable}{\Roman{table}}
+\usepackage{morefloats}
+
+\PassOptionsToPackage{position=top}{subfig}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\bullet 2 0 9 -1
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+
+\series bold
+Skewed Business Cycles
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Any opinions and conclusions expressed herein are those of the authors and
+ do not necessarily represent the views of the U.S.
+ Census Bureau.
+ All results have been reviewed to ensure that no confidential information
+ is disclosed.
+ 
+\begin_inset Newline newline
+\end_inset
+
+The replication packet of the empirical results of the paper is available
+ in the authors' websites and in GitHub in the following link.
+ 
+\end_layout
+
+\end_inset
+
+ 
+\series default
+
+\begin_inset Newline newline
+\end_inset
+
+
+\size normal
+Replication of Empirical Results
+\size default
+ 
+\end_layout
+
+\begin_layout Author
+Sergio Salgado
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+University of Minnesota; 
+\family typewriter
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+href{mailto:salga010@umn.edu}{
+\backslash
+textcolor{blue}{salga010@umn.edu}}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset space \qquad{}
+\end_inset
+
+Fatih Guvenen
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+University of Minnesota, FRB of Minneapolis, and NBER; 
+\family typewriter
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+href{mailto:guvenen@umn.edu}{
+\backslash
+textcolor{blue}{guvenen@umn.edu}}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset space \qquad{}
+\end_inset
+
+Nicholas Bloom
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Stanford University and NBER; 
+\family typewriter
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+href{mailto:nbloom@stanford.edu}{
+\backslash
+textcolor{blue}{nbloom@stanford.edu}}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+In this document, we provide additional details about the replication of
+ the empirical results of the paper.
+ The replication material consists of two sets of files.
+ First, to reproduce the main empirical results of the paper and replicate
+ the figures and tables, use the following files:
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+AGGREGATE.xls 
+\emph default
+which contains aggregate time-series of annual GDP growth from FRED for
+ the United States, quarterly GDP growth from FRED for the United States,
+ cross-country annual GDP growth from the World Development Indicators,
+ and cross-country quarterly GDP growth from the OECD Stats.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+Census_LBD.xls 
+\emph default
+which contains the cross-sectional moments of the distribution of employment
+ growth for establishments and firms from a sample of firms from the Census'
+ Longitudinal Business Dataset (LBD).
+ Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec: Census-LBD"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ describes the available material in additional detail.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+USA_AND_CROSSCOUNTRY.xls
+\emph default
+ which contains the cross-sectional moments of the distribution of annual
+ growth of quarterly sales, annual sales, and employment for publicly traded
+ firms from Compustat, stock returns from CRSP, annual sales growth and
+ employment growth for publicly traded firms from Bureau van Dijk's (BvD)
+ Osiris database, and stock returns from Global Compustat.
+ Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec: USAandCountry"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ describes the available material in detail.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+SBC_ReplicaEmpirics.do
+\emph default
+ takes the .xls files and replicates the main figures and empirical results
+ of the paper.
+ 
+\end_layout
+
+\begin_layout Standard
+Compustat and Global Compustat data were accessed via the Wharton Research
+ Data Services (WRDS) and were last updated on April 13, 2018.
+ 
+\end_layout
+
+\begin_layout Standard
+Second, if you wish to replicate the cross-sectional moments from the raw
+ data and do your own calculations, use the following files:
+\end_layout
+
+\begin_layout Itemize
+SBC_Clean_CSTAT.do takes the raw .dta at annual and quarterly frequency for
+ the universe of firms in Compustat downloaded from WRDS and applies the
+ selection criteria; upon completion, the code generates a clean dataset
+ at the annual and quarterly frequencies and the time-series of cross-sectional
+ moments used in the paper for sales, employment, and stock returns.
+\end_layout
+
+\begin_layout Itemize
+SBC_Clean_BvDOsiris.do takes the raw .csv at annual frequency for the universe
+ of firms available in Bureau van Dijk's (BvD) Osiris dataset downloaded
+ from WRDS and applies selection criteria; upon completion, the code generates
+ a clean datasets at the country-annual frequency with the cross-sectional
+ moments used in the paper for sales and employment.
+ 
+\end_layout
+
+\begin_layout Itemize
+SBC_Clean_GCSTAT.do takes the raw .dta at daily stock returns for the universe
+ of firms in the Global Compustat database downloaded from WRDS and applies
+ the selection criteria; upon completion, the code generates a clean dataset
+ at the country-quarterly level and the time-series of the cross-sectional
+ moments used in the paper for stock returns.
+ 
+\end_layout
+
+\begin_layout Standard
+The do-files are heavily commented and we made the best of our efforts to
+ make them bug-free.
+ But in the case you of any question or find an error in the code, do not
+ hesitate contact us.
+ Be aware that the clean dataset created by these do-files might be larger
+ than the raw dataset because of the large number of variables generated.
+ The Excel file SBC_DataVariableList.xls contains the list of variables in
+ the raw data used in the paper following the names of WRDS.
+ Finally, the underlying data is not this packet but can be accessed through
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+href{https://wrds-web.wharton.upenn.edu/wrds/}{WRDS}
+\end_layout
+
+\end_inset
+
+ or for replication purposes in the following links:
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Global Compustat is substantially larger than the rest of the datasets.
+ In case you want the raw data to replicate these results, please contact
+ Sergio Salgado.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Annual Compustat replication data 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+href{https://www.dropbox.com/s/i9gf10fzu1uw4x0/A_CRSP_CSTAT_1961_2018.dta?dl=0}{her
+e}
+\end_layout
+
+\end_inset
+
+ and Quarterly Compustat replication data 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+href{https://www.dropbox.com/s/6o5afzdbdbn2705/Q_CRSP_CSTAT_1961_2018.dta?dl=0}{her
+e}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+BvD Osiris replication data, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+href{https://www.dropbox.com/s/adrsqfuygy500rm/OsirisIndustrial_Aprl112018.csv?dl=0
+}{here}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Empirical Replication do Files
+\end_layout
+
+\begin_layout Subsection
+SBC Replica Empirics
+\end_layout
+
+\begin_layout Standard
+The do file 
+\emph on
+SBC_ReplicaEmpirics.do
+\emph default
+ takes the data from the excel files and replicates the figures 2 to 7 and
+ appendix figures 11 and 12.
+ It also replicates the regression results for columns 1 to 9 in Table 2.
+ Additional details can be found in the do-file and in the Appendix A.
+ 
+\end_layout
+
+\begin_layout Subsection
+Census LBD 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec: Census-LBD"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+SBC_Census_LBD.xls 
+\emph default
+file contains different moments of the employment growth distribution across
+ firms and establishments.
+ To avoid the disclosure of sensitive information, all the reported percentiles
+ and percentiles-based measures are calculated as the employment weighted
+ average within a 1% centered band around the corresponding percentile (for
+ instance, the 90th percentile is the average across all observations between
+ the 89th and 91th percentiles).
+ See appendix A for additional details on sample selection.
+ The excel file 
+\emph on
+Census_LBD.xls 
+\emph default
+contains the following sheets and variables, 
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+Firm Employment Growth Moments
+\bar default
+: Moments of the employment growth distribution at the firm level across
+ the entire non-farm private sector.
+ The variables in the sheet are the following, 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Year
+\end_layout
+
+\begin_layout Itemize
+p90, p50, p10: 90th, 50th, and 10th percentiles of the distribution 
+\end_layout
+
+\begin_layout Itemize
+ksk: Kelley skewness calculated as 
+\begin_inset Formula $KSK_{t}=\frac{P90-P50}{P90-P10}-\frac{P50-P10}{P90-P10}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+ksk2: alternative measure of Kelley skewness calculated as 
+\begin_inset Formula $KSK2_{t}=\frac{P95-P50}{P95-P5}-\frac{P50-P5}{P95-P5}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Itemize
+ksk3: alternative measure of Kelley skewness calculated as 
+\begin_inset Formula $KSK3_{t}=\frac{P97.5-P50}{P97.5-P2.5}-\frac{P50-P2.5}{P97.5-P2.5}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Itemize
+p9050: 90th-to-50th percentiles spread 
+\end_layout
+
+\begin_layout Itemize
+p5010: 50th-to-10th percentiles spread 
+\end_layout
+
+\begin_layout Itemize
+ksk AC: Kelley skewness of the employment growth distribution considering
+ entry and exit 
+\end_layout
+
+\begin_layout Itemize
+ksk 3 years: Kelley skewness of employment growth distribution of three
+ years log change
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\bar under
+Firm Employment Growth Kelley
+\bar default
+: Kelley skewness calculated as 
+\begin_inset Formula $KSK_{t}=\frac{P90-P50}{P90-P10}-\frac{P50-P10}{P90-P10}$
+\end_inset
+
+ at the firm level within firm size and age groups.
+ The variables in the sheet are the following, 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Year
+\end_layout
+
+\begin_layout Itemize
+group: population group for which the moments are calculated.
+ The categories are
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+fize1: firms with average employment between 1 and 19 where average employment
+ is calculated as 
+\begin_inset Formula $\overline{E}_{j,t}^{f}=0.5\times\left(E_{j,t}^{f}+E_{j,t-1}^{f}\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+fsize2: firms with average employment between 20 and 49
+\end_layout
+
+\begin_layout Itemize
+fsize3: firms with average employment between 50 and 99
+\end_layout
+
+\begin_layout Itemize
+fsize4: firms with average employment between 100 and 499
+\end_layout
+
+\begin_layout Itemize
+fsize6: firms with average employment between 500 and 999
+\end_layout
+
+\begin_layout Itemize
+fsize7: firms with average employment of 1000 or more
+\end_layout
+
+\begin_layout Itemize
+fage1: firms of less than 5 years old
+\end_layout
+
+\begin_layout Itemize
+fage2: firms between 5 and 10 years old
+\end_layout
+
+\begin_layout Itemize
+fage3: firms more than 10 years old.
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Firms already present in the LBD in 1976 were not considered in any of the
+ age groups.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+ksk: Kelley skewness of the employment growth distribution within the relevant
+ group.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\bar under
+Estab.
+ Employment Growth Kelley
+\bar default
+: Kelley skewness calculated as 
+\begin_inset Formula $KSK_{t}=\frac{P90-P50}{P90-P10}-\frac{P50-P10}{P90-P10}$
+\end_inset
+
+ at the establishment level for entire US nonfarm private sector and within
+ establishment size and age groups.
+ The variables in the sheet are the following, 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Year
+\end_layout
+
+\begin_layout Itemize
+group: population group for which the moments are calculated.
+ The categories are
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+All: Entire US nonfarm private sector
+\end_layout
+
+\begin_layout Itemize
+eize1: establishment with average employment between 1 and 19 where average
+ employment is calculated as 
+\begin_inset Formula $\overline{E}_{j,t}^{e}=0.5\times\left(E_{j,t}^{e}+E_{j,t-1}^{e}\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+esize2: establishment with average employment between 20 and 49
+\end_layout
+
+\begin_layout Itemize
+esize3: establishment with average employment between 50 and 99
+\end_layout
+
+\begin_layout Itemize
+esize4: establishment with average employment between 100 and 499
+\end_layout
+
+\begin_layout Itemize
+esize6: establishment with average employment between 500 and 999
+\end_layout
+
+\begin_layout Itemize
+esize7: establishment with average employment of 1000 or more
+\end_layout
+
+\begin_layout Itemize
+eage1: establishment of less than 5 years old
+\end_layout
+
+\begin_layout Itemize
+eage2: establishment between 5 and 10 years old
+\end_layout
+
+\begin_layout Itemize
+eage3: establishment more than 10 years old.
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Establishment already present in the LBD in 1976 were not considered in
+ any of the age groups.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+ksk: Kelley skewness of the employment growth distribution within the relevant
+ group.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+United States and Cross Country 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec: USAandCountry"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+SBC_USA_AND_CROSSCOUNTRY.xls 
+\emph default
+file contains cross-sectional moments of the distribution of sales growth,
+ employment growth, and stock returns for the United States and for a cross
+ section of countries.
+ See appendix A for additional details on sample selection.
+ 
+\begin_inset Newline newline
+\end_inset
+
+The excel file 
+\emph on
+SBC_USA_AND_CROSSCOUNTRY.xls
+\emph default
+ contains the following sheets:
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+USA Kernel Density
+\bar default
+: estimated empirical density for recession and expansion years of the annual
+ sales growth distribution for a sample of publicly traded firms in the
+ United States 
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+USA Quarter Sales Growth
+\bar default
+: moments of the four quarters growth rate of quarterly sales for a sample
+ of publicly traded firms in the United States
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+USA Quarter Stock Returns
+\bar default
+: moments of the four quarters growth rate of end-of-quarter stock price
+ for a sample of publicly traded firms in the United States
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+USA Annual Sales Growth
+\bar default
+: moments the one year growth rate of annual sales in the United States
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+USA Annual Employment Growth
+\bar default
+: moments the one year growth rate of annual employment in the United States
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+USA Employment Scatter
+\bar default
+: mean and Kelley skewness within different quantiles of the industry-year
+ distribution of average employment growth in the LBD.
+ These moments were generated using Census data and no additional replication
+ material were disclosed.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+Country Kernel Density
+\bar default
+: estimated empirical density for recession and expansion years of the annual
+ sales growth distribution for a sample of publicly traded firms from BvD's
+ Osiris across ~40 countries
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+Country Annual Sales Growth
+\bar default
+: moments the one year growth rate of annual sales for a sample of publicly
+ traded firms from BvD's Osiris across ~40 countries
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+Country Annual Employment Growth
+\bar default
+: moments the one year growth rate of annual sales for a sample of publicly
+ traded firms from BvD's Osiris across ~40 countries
+\end_layout
+
+\begin_layout Itemize
+
+\bar under
+Country Stock Returns
+\bar default
+: moments the four quarters growth rate of the end-of-quarter stock price
+ for a sample of publicly traded cross ~40 countries from Global Compustat
+\end_layout
+
+\begin_layout Standard
+The sheets contain the following variables
+\end_layout
+
+\begin_layout Itemize
+group: defines the sample over which the moments are calculated.
+ This takes the categories all (all sample) or NAICqq where qq is a two
+ digit industry group.
+ This is only available for USA data
+\end_layout
+
+\begin_layout Itemize
+ISO3: country ISO code.
+ Only available 
+\end_layout
+
+\begin_layout Itemize
+Year 
+\end_layout
+
+\begin_layout Itemize
+Quarter: Only available for Sales and Stock returns for firms in the United
+ States
+\end_layout
+
+\begin_layout Itemize
+num: number of observations used to calculate the moments
+\end_layout
+
+\begin_layout Itemize
+me: cross-sectional average
+\end_layout
+
+\begin_layout Itemize
+sd: cross-sectional standard deviation 
+\end_layout
+
+\begin_layout Itemize
+sk: coefficient of skewness (third standardized central moment)
+\end_layout
+
+\begin_layout Itemize
+ku: coefficient of kurtosis (fourth standardized central moment)
+\end_layout
+
+\begin_layout Itemize
+p025: 2.5th percentile of the distribution
+\end_layout
+
+\begin_layout Itemize
+p10: 10th percentile of the distribution
+\end_layout
+
+\begin_layout Itemize
+p25: 25th percentile of the distribution
+\end_layout
+
+\begin_layout Itemize
+p50: 50th percentile of the distribution
+\end_layout
+
+\begin_layout Itemize
+p75: 75th percentile of the distribution
+\end_layout
+
+\begin_layout Itemize
+p90: 90th percentile of the distribution
+\end_layout
+
+\begin_layout Itemize
+p975: 97.5th percentile of the distribution
+\end_layout
+
+\begin_layout Itemize
+p9010: 90th-to-10th percentiles spread
+\end_layout
+
+\begin_layout Itemize
+p7525: 75th-to-25th percentiles spread
+\end_layout
+
+\begin_layout Itemize
+p9050: 90th-to-50th percentiles spread
+\end_layout
+
+\begin_layout Itemize
+p5010: 50th-to-10th percentiles spread
+\end_layout
+
+\begin_layout Itemize
+ksk: Kelley skewness calculated as calculated as 
+\begin_inset Formula $KSK_{t}=\frac{P90-P50}{P90-P10}-\frac{P50-P10}{P90-P10}$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+cku: Crow-Sidiqqui kurtosis calculated as 
+\begin_inset Formula $CKU_{t}=\frac{P97.5-P2.5}{P75-P25}$
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

@@ -1,0 +1,250 @@
+countryname ,contryiso,iso2,iso3,Código numérico
+ Afganistán,Afganistán,AF,AFG,4
+ Åland,Islas Åland,AX,ALA,248
+ Albania,Albania,AL,ALB,8
+ Alemania,Alemania,DE,DEU,276
+ Andorra,Andorra,AD,AND,20
+ Angola,Angola,AO,AGO,24
+ Anguila,Anguila,AI,AIA,660
+ Antártida,Antártida,AQ,ATA,10
+ Antigua y Barbuda,Antigua y Barbuda,AG,ATG,28
+ Arabia Saudita,Arabia Saudita,SA,SAU,682
+ Argelia,Argelia,DZ,DZA,12
+ Argentina,Argentina,AR,ARG,32
+ Armenia,Armenia,AM,ARM,51
+ Aruba,Aruba,AW,ABW,533
+ Australia,Australia,AU,AUS,36
+ Austria,Austria,AT,AUT,40
+ Azerbaiyán,Azerbaiyán,AZ,AZE,31
+ Bahamas,Bahamas (las),BS,BHS,44
+ Bangladés,Bangladés,BD,BGD,50
+ Barbados,Barbados,BB,BRB,52
+ Baréin,Baréin,BH,BHR,48
+ Bélgica,Bélgica,BE,BEL,56
+ Belice,Belice,BZ,BLZ,84
+ Benín,Benín,BJ,BEN,204
+ Bermudas,Bermudas,BM,BMU,60
+ Bielorrusia,Bielorrusia,BY,BLR,112
+ Myanmar,Myanmar,MM,MMR,104
+ Bolivia,"Bolivia, Estado Plurinacional de",BO,BOL,68
+ Bosnia y Herzegovina,Bosnia y Herzegovina,BA,BIH,70
+ Botsuana,Botsuana,BW,BWA,72
+ Brasil,Brasil,BR,BRA,76
+ Brunéi,Brunéi Darussalam,BN,BRN,96
+ Bulgaria,Bulgaria,BG,BGR,100
+ Burkina Faso,Burkina Faso,BF,BFA,854
+ Burundi,Burundi,BI,BDI,108
+ Bután,Bután,BT,BTN,64
+ Cabo Verde,Cabo Verde,CV,CPV,132
+ Camboya,Camboya,KH,KHM,116
+ Camerún,Camerún,CM,CMR,120
+ Canadá,Canadá,CA,CAN,124
+ Catar,Catar,QA,QAT,634
+ Caribe Neerlandés,"Bonaire, San Eustaquio y Saba",BQ,BES,535
+ Chad,Chad,TD,TCD,148
+ Chile,Chile,CL,CHL,152
+ China,China,CN,CHN,156
+ Chipre,Chipre,CY,CYP,196
+ Colombia,Colombia,CO,COL,170
+ Comoras,Comoras,KM,COM,174
+ Corea del Norte,Corea (la República Democrática Popular de),KP,PRK,408
+ Corea del Sur,Corea (la República de),KR,KOR,410
+ Costa de Marfil,Côte d'Ivoire,CI,CIV,384
+ Costa Rica,Costa Rica,CR,CRI,188
+ Croacia,Croacia,HR,HRV,191
+ Cuba,Cuba,CU,CUB,192
+ Curazao,Curaçao,CW,CUW,531
+ Dinamarca,Dinamarca,DK,DNK,208
+ Dominica,Dominica,DM,DMA,212
+ Ecuador,Ecuador,EC,ECU,218
+ Egipto,Egipto,EG,EGY,818
+ El Salvador,El Salvador,SV,SLV,222
+ Emiratos Árabes Unidos,Emiratos Árabes Unidos (Los),AE,ARE,784
+ Eritrea,Eritrea,ER,ERI,232
+ Eslovaquia,Eslovaquia,SK,SVK,703
+ Eslovenia,Eslovenia,SI,SVN,705
+ España,España,ES,ESP,724
+ Estados Unidos,Estados Unidos (los),US,USA,840
+ Estonia,Estonia,EE,EST,233
+ Etiopía,Etiopía,ET,ETH,231
+ Filipinas,Filipinas (las),PH,PHL,608
+ Finlandia,Finlandia,FI,FIN,246
+ Fiyi,Fiyi,FJ,FJI,242
+ Francia,Francia,FR,FRA,250
+ Gabón,Gabón,GA,GAB,266
+ Gambia,Gambia (La),GM,GMB,270
+ Georgia,Georgia,GE,GEO,268
+ Ghana,Ghana,GH,GHA,288
+ Gibraltar,Gibraltar,GI,GIB,292
+ Granada,Granada,GD,GRD,308
+ Grecia,Grecia,GR,GRC,300
+ Groenlandia,Groenlandia,GL,GRL,304
+ Guadalupe,Guadalupe,GP,GLP,312
+ Guam,Guam,GU,GUM,316
+ Guatemala,Guatemala,GT,GTM,320
+ Guayana Francesa,Guayana Francesa,GF,GUF,254
+ Guernsey,Guernsey,GG,GGY,831
+ Guinea,Guinea,GN,GIN,324
+ Guinea-Bisáu,Guinea-Bisáu,GW,GNB,624
+ Guinea Ecuatorial,Guinea Ecuatorial,GQ,GNQ,226
+ Guyana,Guyana,GY,GUY,328
+ Haití,Haití,HT,HTI,332
+ Honduras,Honduras,HN,HND,340
+ Hong Kong,Hong Kong,HK,HKG,344
+ Hungría,Hungría,HU,HUN,348
+ India,India,IN,IND,356
+ Indonesia,Indonesia,ID,IDN,360
+ Irak,Irak,IQ,IRQ,368
+ Irán,Irán (la República Islámica de),IR,IRN,364
+ Irlanda,Irlanda,IE,IRL,372
+ Isla Bouvet,Isla Bouvet,BV,BVT,74
+ Isla de Man,Isla de Man,IM,IMN,833
+ Isla de Navidad,Isla de Navidad,CX,CXR,162
+ Norfolk,Isla Norfolk,NF,NFK,574
+ Islandia,Islandia,IS,ISL,352
+ Islas Caimán,Islas Caimán (las),KY,CYM,136
+ Islas Cocos,Islas Cocos (Keeling),CC,CCK,166
+ Islas Cook,Islas Cook (las),CK,COK,184
+ Islas Feroe,Islas Feroe (las),FO,FRO,234
+ Islas Georgias del Sur y Sandwich del Sur,Georgia del sur y las islas sandwich del sur,GS,SGS,239
+ Islas Heard y McDonald,Isla Heard e Islas McDonald,HM,HMD,334
+ Islas Malvinas,Islas Malvinas [Falkland] (las),FK,FLK,238
+ Islas Marianas del Norte,Islas Marianas del Norte (las),MP,MNP,580
+ Islas Marshall,Islas Marshall (las),MH,MHL,584
+ Islas Pitcairn,Pitcairn,PN,PCN,612
+ Islas Salomón,Islas Salomón (las),SB,SLB,90
+ Islas Turcas y Caicos,Islas Turcas y Caicos (las),TC,TCA,796
+ Islas ultramarinas de Estados Unidos,Islas de Ultramar Menores de Estados Unidos (las),UM,UMI,581
+ Islas Vírgenes Británicas,Islas Vírgenes (Británicas),VG,VGB,92
+ Islas Vírgenes de los Estados Unidos,Islas Vírgenes (EE.UU.),VI,VIR,850
+ Israel,Israel,IL,ISR,376
+ Italia,Italia,IT,ITA,380
+ Jamaica,Jamaica,JM,JAM,388
+ Japón,Japón,JP,JPN,392
+ Jersey,Jersey,JE,JEY,832
+ Jordania,Jordania,JO,JOR,400
+ Kazajistán,Kazajistán,KZ,KAZ,398
+ Kenia,Kenia,KE,KEN,404
+ Kirguistán,Kirguistán,KG,KGZ,417
+ Kiribati,Kiribati,KI,KIR,296
+ Kuwait,Kuwait,KW,KWT,414
+ Laos,"Lao, (la) República Democrática Popular",LA,LAO,418
+ Lesoto,Lesoto,LS,LSO,426
+ Letonia,Letonia,LV,LVA,428
+ Líbano,Líbano,LB,LBN,422
+ Liberia,Liberia,LR,LBR,430
+ Libia,Libia,LY,LBY,434
+ Liechtenstein,Liechtenstein,LI,LIE,438
+ Lituania,Lituania,LT,LTU,440
+ Luxemburgo,Luxemburgo,LU,LUX,442
+ Macao,Macao,MO,MAC,446
+ Madagascar,Madagascar,MG,MDG,450
+ Malasia,Malasia,MY,MYS,458
+ Malaui,Malaui,MW,MWI,454
+ Maldivas,Maldivas,MV,MDV,462
+ Malí,Malí,ML,MLI,466
+ Malta,Malta,MT,MLT,470
+ Marruecos,Marruecos,MA,MAR,504
+ Martinica,Martinica,MQ,MTQ,474
+ Mauricio,Mauricio,MU,MUS,480
+ Mauritania,Mauritania,MR,MRT,478
+ Mayotte,Mayotte,YT,MYT,175
+ México,México,MX,MEX,484
+ Micronesia,Micronesia (los Estados Federados de),FM,FSM,583
+ Moldavia,Moldavia (la República de),MD,MDA,498
+ Mónaco,Mónaco,MC,MCO,492
+ Mongolia,Mongolia,MN,MNG,496
+ Montenegro,Montenegro,ME,MNE,499
+ Montserrat,Montserrat,MS,MSR,500
+ Mozambique,Mozambique,MZ,MOZ,508
+ Namibia,Namibia,NA,NAM,516
+ Nauru,Nauru,NR,NRU,520
+ Nepal,Nepal,NP,NPL,524
+ Nicaragua,Nicaragua,NI,NIC,558
+ Níger,Níger (el),NE,NER,562
+ Nigeria,Nigeria,NG,NGA,566
+ Niue,Niue,NU,NIU,570
+ Noruega,Noruega,NO,NOR,578
+ Nueva Caledonia,Nueva Caledonia,NC,NCL,540
+ Nueva Zelanda,Nueva Zelanda,NZ,NZL,554
+ Omán,Omán,OM,OMN,512
+ Países Bajos,Países Bajos (los),NL,NLD,528
+ Pakistán,Pakistán,PK,PAK,586
+ Palaos,Palaos,PW,PLW,585
+ Palestina,"Palestina, Estado de",PS,PSE,275
+ Panamá,Panamá,PA,PAN,591
+ Papúa Nueva Guinea,Papúa Nueva Guinea,PG,PNG,598
+ Paraguay,Paraguay,PY,PRY,600
+ Perú,Perú,PE,PER,604
+ Polinesia Francesa,Polinesia Francesa,PF,PYF,258
+ Polonia,Polonia,PL,POL,616
+ Portugal,Portugal,PT,PRT,620
+ Puerto Rico,Puerto Rico,PR,PRI,630
+ Reino Unido,Reino Unido (el),GB,GBR,826
+ República Centroafricana,República Centroafricana (la),CF,CAF,140
+ República Checa,República Checa (la),CZ,CZE,203
+ Macedonia,Macedonia (la antigua República Yugoslava de),MK,MKD,807
+ República del Congo,Congo,CG,COG,178
+ República Democrática del Congo,Congo (la República Democrática del),CD,COD,180
+ República Dominicana,República Dominicana (la),DO,DOM,214
+ Reunión,Reunión,RE,REU,638
+ Ruanda,Ruanda,RW,RWA,646
+ Rumania,Rumania,RO,ROU,642
+ Rusia,"Rusia, (la) Federación de",RU,RUS,643
+ República Árabe Saharaui Democrática,Sahara Occidental,EH,ESH,732
+ Samoa,Samoa,WS,WSM,882
+ Samoa Americana,Samoa Americana,AS,ASM,16
+ San Bartolomé,San Bartolomé,BL,BLM,652
+ San Cristóbal y Nieves,San Cristóbal y Nieves,KN,KNA,659
+ San Marino,San Marino,SM,SMR,674
+ San Martín,San Martín (parte francesa),MF,MAF,663
+ San Pedro y Miquelón,San Pedro y Miquelón,PM,SPM,666
+ San Vicente y las Granadinas,San Vicente y las Granadinas,VC,VCT,670
+" Santa Elena, Ascensión y Tristán de Acuña","Santa Helena, Ascensión y Tristán de Acuña",SH,SHN,654
+ Santa Lucía,Santa Lucía,LC,LCA,662
+ Santo Tomé y Príncipe,Santo Tomé y Príncipe,ST,STP,678
+ Senegal,Senegal,SN,SEN,686
+ Serbia,Serbia,RS,SRB,688
+ Seychelles,Seychelles,SC,SYC,690
+ Sierra Leona,Sierra leona,SL,SLE,694
+ Singapur,Singapur,SG,SGP,702
+ Sint Maarten,Sint Maarten (parte holandesa),SX,SXM,534
+ Siria,"Siria, (la) República Árabe",SY,SYR,760
+ Somalia,Somalia,SO,SOM,706
+ Sri Lanka,Sri Lanka,LK,LKA,144
+ Suazilandia,Suazilandia,SZ,SWZ,748
+ Sudáfrica,Sudáfrica,ZA,ZAF,710
+ Sudán,Sudán (el),SD,SDN,729
+ Sudán del Sur,Sudán del Sur,SS,SSD,728
+ Suecia,Suecia,SE,SWE,752
+  Suiza,Suiza,CH,CHE,756
+ Surinam,Surinam,SR,SUR,740
+ Svalbard y Jan Mayen,Svalbard y Jan Mayen,SJ,SJM,744
+ Tailandia,Tailandia,TH,THA,764
+ República de China,Taiwán (Provincia de China),TW,TWN,158
+ Tanzania,"Tanzania, República Unida de",TZ,TZA,834
+ Tayikistán,Tayikistán,TJ,TJK,762
+ Territorio Británico del Océano Índico,Territorio Británico del Océano Índico (el),IO,IOT,86
+ Tierras Australes y Antárticas Francesas,Territorios Australes Franceses (los),TF,ATF,260
+ Timor Oriental,Timor-Leste,TL,TLS,626
+ Togo,Togo,TG,TGO,768
+ Tokelau,Tokelau,TK,TKL,772
+ Tonga,Tonga,TO,TON,776
+ Trinidad y Tobago,Trinidad y Tobago,TT,TTO,780
+ Túnez,Túnez,TN,TUN,788
+ Turkmenistán,Turkmenistán,TM,TKM,795
+ Turquía,Turquía,TR,TUR,792
+ Tuvalu,Tuvalu,TV,TUV,798
+ Ucrania,Ucrania,UA,UKR,804
+ Uganda,Uganda,UG,UGA,800
+ Uruguay,Uruguay,UY,URY,858
+ Uzbekistán,Uzbekistán,UZ,UZB,860
+ Vanuatu,Vanuatu,VU,VUT,548
+ Ciudad del Vaticano,Santa Sede [Estado de la Ciudad del Vaticano] (la),VA,VAT,336
+ Venezuela,"Venezuela, República Bolivariana de",VE,VEN,862
+ Vietnam,Viet Nam,VN,VNM,704
+ Wallis y Futuna,Wallis y Futuna,WF,WLF,876
+ Yemen,Yemen,YE,YEM,887
+ Yibuti,Yibuti,DJ,DJI,262
+ Zambia,Zambia,ZM,ZMB,894
+ Zimbabue,Zimbabue,ZW,ZWE,716
