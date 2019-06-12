@@ -5,7 +5,7 @@
 	Skewed Business Cycles by Salgado/Guvenen/Bloom 
 	(original version SBC_Clean_QUSA_v6.do)
 	First version April, 13, 2019
-	This  version April, 27, 2019	
+	This  version May, 31 2019	
 	
 	In case of any questions contact 
 	Sergio Salgado I
@@ -18,16 +18,15 @@
 *#############################################
 *-- OPTIONS
 *#############################################
-
 clear all
 set more off
 cap: ssc install winsor2 	// Used to winsor some outliers. Need internet to install
 
-global dfolder = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/raw"	
+global dfolder = "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/raw"	
 			// Location of raw data 
-global cdata = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/out"		
+global cdata = "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/out"		
 			// Location of clean data will be saved 
-global adata = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/agg"
+global adata = "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/agg"
 			// Location aggregate auxiliary data
 
 
@@ -63,7 +62,7 @@ if "${aclean}" == "yes" {
 	gen indica = .
 	gen indica2 = .
 	by gvkey: replace indica= 1 if fyear == fyear[_n-1]
-	drop if indica == 1				// Only 73 observations have two entries for the same quarter
+	drop if indica == 1				// Only 73 observations have two entries for the same year
 		
 *--- Calcualting the average employment distribution
 	tsset gvkey fyear 
@@ -76,9 +75,15 @@ if "${aclean}" == "yes" {
 	
 *--- Drop if non positive sales
 	drop if sale <= 0 | sale == . 
-	gen debt_total = dltt + dlc 
+
+*-- Replace negative profits and negative invetories by missing	
+*	These variables are used for robustness checks. 
+	replace invfg = . if invfg <  0 
+	replace gp    = . if gp    <  0 
+	 
 	
 *--- Calcualting the Leverage as Total Debt to Total Assets 
+	gen debt_total = dltt + dlc 
 	gen lev = dt/at
 	gen lev_dlc = dlc/at
 	gen lev_tot = debt_total /at
@@ -88,10 +93,12 @@ if "${aclean}" == "yes" {
 	compress
 	merge m:1 fyearq using "${adata}/CPIAUCSL_A.dta",keep(3) nogenerate	
 
-*-- Real sales		
+*-- Real sales, assets, stock prices, profits, and invetories
 	gen saler = sale*(${abasecpi}/cpi)
 	gen atr = at*(${abasecpi}/cpi)
 	gen prcc_cr = prcc_c*(${abasecpi}/cpi)
+	gen gpr =  	  gp*(${abasecpi}/cpi)
+	gen invfgr =  invfg*(${abasecpi}/cpi)
 	tsset gvkey fyear
 	
 *-- Residuals of a regression 
@@ -103,6 +110,9 @@ if "${aclean}" == "yes" {
 	
 	reg lsaler_res L1.lsaler_res
 	predict lsaler_innov if e(sample), resid 
+
+*-- Sales over employment 
+	gen saler2emp = saler/emp
 	
 *-- Sales with exit 
 	tsfill, full			// Neccessary to do entry and exit. 
@@ -115,7 +125,7 @@ if "${aclean}" == "yes" {
 	gen atrz = atr 
 	replace atrz = 0 if atrz == . 
 	
-	*NAICS 
+*-- NAICS 
 	gen naics2 = substr(naics,1,2)
 	destring naics2,replace force
 	bys gvkey: egen mnaics = max(naics2)
@@ -161,13 +171,18 @@ if "${aclean}" == "yes" {
 	*/	
 
 *-- Investmemt rate 
-	gen inv_rate = capx/L1.ppent
+	gen inv_rate = capx/L1.ppent			// CHECK, THIS IS NOT IN THE DATA 
 	
 *-- Investment in R&D to Sales
-	gen xrd_sale = xrd/sale
+	gen xrd_sale = xrd/sale					// CHECK WHY IS NOT HERE
 	
 *-- Growth rates of sales 
 	*Forward 
+	gen g_saler_pp =  (F1.saler - saler)/saler
+	gen g_saler_pp3 = (F3.saler - saler)/saler
+	gen g_saler_pp5 = (F5.saler - saler)/saler
+	gen g_saler_pp10 = (F10.saler - saler)/saler
+	
 	gen g_saler_ll =  log(F1.saler) - log(saler)
 	gen g_saler_ll3 = log(F3.saler) - log(saler)
 	gen g_saler_ll5 = log(F5.saler) - log(saler)
@@ -184,6 +199,11 @@ if "${aclean}" == "yes" {
 	gen g_salerz_ac10 = (F10.salerz - salerz)/(0.5*(F10.salerz + salerz))
 	
 	*Backwards
+	gen g_saler_ppb =  (saler - L1.saler)/L1.saler
+	gen g_saler_ppb3 = (saler - L3.saler)/L3.saler
+	gen g_saler_ppb5 = (saler - L5.saler)/L5.saler
+	gen g_saler_ppb10 = (saler - L10.saler)/L10.saler
+	
 	gen g_saler_llb =  log(saler) - log(L1.saler)
 	gen g_saler_llb3 = log(saler) - log(L3.saler)
 	gen g_saler_llb5 = log(saler) - log(L5.saler)
@@ -201,6 +221,11 @@ if "${aclean}" == "yes" {
 	
 	*Growth rates of employment 
 	*Forward 
+	gen g_emp_pp =  (F1.emp - emp)/emp
+	gen g_emp_pp3 = (F3.emp - emp)/emp
+	gen g_emp_pp5 = (F5.emp - emp)/emp
+	gen g_emp_pp10 = (F10.emp - emp)/emp
+	
 	gen g_emp_ll =  log(F1.emp) - log(emp)
 	gen g_emp_ll3 = log(F3.emp) - log(emp)
 	gen g_emp_ll5 = log(F5.emp) - log(emp)
@@ -217,6 +242,11 @@ if "${aclean}" == "yes" {
 	gen g_empz_ac10 = (F10.empz - empz)/(0.5*(F10.empz + empz))
 	
 	*Backwards
+	gen g_emp_ppb =  (emp - L1.emp)/L1.emp
+	gen g_emp_ppb3 = (emp - L3.emp)/L3.emp
+	gen g_emp_ppb5 = (emp - L5.emp)/L5.emp
+	gen g_emp_ppb10 = (emp - L10.emp)/L10.emp
+
 	gen g_emp_llb =  log(emp) - log(L1.emp)
 	gen g_emp_llb3 = log(emp) - log(L3.emp)
 	gen g_emp_llb5 = log(emp) - log(L5.emp)
@@ -237,6 +267,30 @@ if "${aclean}" == "yes" {
 	gen g_prcc_cr_ll3 = log(F3.prcc_cr) - log(prcc_cr)
 	gen g_prcc_cr_ll5 = log(F5.prcc_cr) - log(prcc_cr)
 	gen g_prcc_cr_ll10 = log(F10.prcc_cr) - log(prcc_cr)
+	
+	*Residualized Sales
+	gen g_lsaler_res_ll = F1.lsaler_res - lsaler_res
+	gen g_lsaler_res_ll3 = F3.lsaler_res - lsaler_res
+	gen g_lsaler_res_ll5 = F5.lsaler_res - lsaler_res
+	gen g_lsaler_res_ll10 = F10.lsaler_res - lsaler_res
+	
+	*Sales to employment 
+	gen g_saler2emp_ll = log(F1.saler2emp) - log(saler2emp)
+	gen g_saler2emp_ll3 = log(F3.saler2emp) - log(saler2emp)
+	gen g_saler2emp_ll5 = log(F5.saler2emp) - log(saler2emp)
+	gen g_saler2emp_ll10 = log(F10.saler2emp) - log(saler2emp)
+	
+	*Profits 
+	gen g_gpr_ll = log(F1.gpr) - log(gpr)
+	gen g_gpr_ll3 = log(F3.gpr) - log(gpr)
+	gen g_gpr_ll5 = log(F5.gpr) - log(gpr)
+	gen g_gpr_ll10 = log(F10.gpr) - log(gpr)
+	
+	*Inventories
+	gen g_invfgr_ll = log(F1.invfgr) - log(invfgr)
+	gen g_invfgr_ll3 = log(F3.invfgr) - log(invfgr)
+	gen g_invfgr_ll5 = log(F5.invfgr) - log(invfgr)
+	gen g_invfgr_ll10 = log(F10.invfgr) - log(invfgr)
 	
 	*Identify firms with 10 yrs of data or more
 	sort gvkey	
@@ -506,8 +560,8 @@ if "${amomnt}" == "yes"{
 	local wbases "uw"
 		// Choose whether moments will be weigthed. Two cases wbases:w, uw
 	
-	levelsof naiclab, local(nlab) clean	
-	local subgp = "all `nlab'"		
+	*levelsof naiclab, local(nlab) clean	
+	local subgp = "all"		
 	disp("`subgp'") 				
 		// Creates the local for the groups for which moments will be calculated
 		// here is all sample and within industry
@@ -517,8 +571,8 @@ if "${amomnt}" == "yes"{
 	*local variables "`variables' g_saler_ll g_saler_llb g_saler_ac g_saler_ll3 g_saler_ac3 g_emp_ll g_emp_ac g_emp_ll3 g_emp_ac3"	
 	*disp("`variables'")
 	
-	*Few variables
-	local variables "g_saler_ll g_emp_ll inv_rate xrd_sale"
+	*Few variables g_saler_ll g_emp_ll 
+	local variables "g_gpr_ll g_invfgr_ll g_saler_ll g_saler_pp g_lsaler_res_ll lsaler_res g_saler2emp_ll g_emp_ll"
 	disp("`variables'")
 	
 *-- Starts the main loop to calculate moments 
@@ -533,7 +587,7 @@ if "${amomnt}" == "yes"{
 			
 			preserve 
 			*Select variables
-			keep saler emp inv_rate xrd_sale ave_emp* ave_saler* ave_atr* identifica gvkey fyearq naiclab `vv'
+			keep saler emp ave_emp* ave_saler* ave_atr* identifica gvkey fyearq naiclab `vv'
 			drop if `vv' == . 
 			 
 			*Select year
@@ -554,10 +608,11 @@ if "${amomnt}" == "yes"{
 			
 			*Select w-var (When employment series start, replace the wbar)
 			*One year
-			if inlist("`vv'","g_saler_ll","g_saler_ac"){
+			local wvar = "ave_saler1"
+			if inlist("`vv'","g_saler_ll","g_saler_ac","g_saler_pp","g_lsaler_res_ll","lsaler_res","g_saler2emp_ll"){
 				local wvar = "ave_saler1"
 			}
-			if inlist("`vv'","g_emp_ll","g_emp_ac"){
+			if inlist("`vv'","g_emp_ll","g_emp_ac","g_emp_pp"){
 				local wvar = "ave_emp1"
 			}
 			if inlist("`vv'","g_prcc_cr_ll"){
@@ -591,7 +646,7 @@ if "${amomnt}" == "yes"{
 					"g_saler_llb","g_saler_llb3","g_saler_llb5","g_saler_llb10") | ///
 					 inlist("`vv'","g_emp_ll","g_emp_ll3","g_emp_ll5","g_emp_ll10", ///
 					"g_emp_llb","g_emp_llb3","g_emp_llb5","g_emp_llb10") | ///
-					inlist("`vv'","inv_rate","xrd_sale"){
+					inlist("`vv'","inv_rate","xrd_sale","g_saler_pp","lsaler_res","g_saler2emp_ll"){
 					cap: winsor2 `vv', by(fyearq) cuts(1 99) trim replace
 					sum `vv' , d	
 				}
@@ -604,7 +659,7 @@ if "${amomnt}" == "yes"{
 					"g_saler_llb","g_saler_llb3","g_saler_llb5","g_saler_llb10") | ///
 					 inlist("`vv'","g_emp_ll","g_emp_ll3","g_emp_ll5","g_emp_ll10", ///
 					"g_emp_llb","g_emp_llb3","g_emp_llb5","g_emp_llb10") | ///
-					 inlist("`vv'","g_prcc_cr_ll","g_prcc_cr_ll3","g_prcc_cr_ll5"){
+					 inlist("`vv'","g_prcc_cr_ll","g_prcc_cr_ll3","g_prcc_cr_ll5","g_saler_pp"){
 					cap: winsor2 `vv', by(fyearq) cuts(1 99) trim replace
 					sum `vv' [aw  = `wvar'], d	
 				}
@@ -710,7 +765,7 @@ if "${amomnt}" == "yes"{
 *-- Save for results 	
 	compress
 	order base wei subgroup vari fyear
-	saveold "${cdata}/SBC_TimeSeries_CSTAT_ANNUAL_APR2019.dta", replace 	
+	saveold "${cdata}/SBC_TimeSeries_CSTAT_ANNUAL_MAY2019.dta", replace 	
 } // END OF THE ANNUAL MOMENTS SECTION
 **
 

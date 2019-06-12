@@ -1,6 +1,6 @@
 README FILE FOR SKEWED BUSINESS CYCLES 
 First version: March,08,2019
-This version : April,15,2019
+This version : June,12,2019
 
 
 This packet contains the replication files for the empirical results in Skewed Business Cycles by Salgado, Guvenen, and Bloom (2019)
