@@ -7,9 +7,10 @@
 	First version April, 14, 2019
 	This  version April, 14, 2019	
 	
-	In case of any questions contact 
-	Sergio Salgado I
-	salga010@umn.edu
+	In case of any suggestions/questions, please contact 
+	Sergio Salgado I.
+	ssalgado@wharton.upenn.edu
+	https://sergiosalgadoi.wordpress.com/
 	
 	The raw data was last updated on April, 20, 2018
 	

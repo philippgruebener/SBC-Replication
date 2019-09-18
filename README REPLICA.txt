@@ -1,11 +1,11 @@
 README FILE FOR SKEWED BUSINESS CYCLES 
 First version: March,08,2019
-This version: June,12,2019
+This version: July,28,2019
 
 
 This packet contains the replication files for the empirical results of Skewed Business Cycles by Salgado, Guvenen, and Bloom (2019)
 
-We have tried our best to have a self-contained, self-explanatory, bug-free, set of do-files, but if you encounter any problem or have some suggestions to make the codes better, please contact Sergio Salgado at salga010@umn.edu.
+We have tried our best to have a self-contained, self-explanatory, bug-free, set of do-files, but if you encounter any problem or have some suggestions to make the codes better, please contact Sergio Salgado at ssalgado@wharton.upenn.edu.
 
 The packet contains the following folders
 

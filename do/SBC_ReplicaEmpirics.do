@@ -2,11 +2,15 @@
 	This file replicates the empirical results for 
 	Skewed Business Cycles by Salgado, Guvenen, and Bloom 
 	First version April, 04, 2019
-	This  version June,  06, 2019
+	This  version August,10, 2019
 	
 	In case of any suggestions/questions, please contact 
 	Sergio Salgado I.
-	salga010@umn.edu
+	ssalgado@wharton.upenn.edu
+	https://sergiosalgadoi.wordpress.com/
+	
+	Note: Some of the figure numbers here might not match figure numbers in the paper
+		
 	
 */
 
@@ -14,10 +18,10 @@ clear all
 set more off
 set matsize 1000
 cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
-	// Direct where files are saved
+	// Direct to where files are saved
 
 *##################################	
-*REPLICA TABLE 2
+*REPLICA TABLE 2 OF PAPER
 *##################################	
 	*Aggregate 
 	*Annual US GDP from FRED
@@ -69,7 +73,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	
 	*Re scale GDP growth
 	sum dAGDPPC
-	replace dAGDPPC =dAGDPPC/r(sd)
+	replace dAGDPPC=dAGDPPC/r(sd)
 	
 	*Trend 	
 	gen trend = _n
@@ -152,7 +156,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Country Stock Returns") cellrange(A1:Q9646) first clear 
 	replace ksk = 100*ksk
 	
-	keep if num >= 100		// Keep qyater/year cell with more than 100 firms
+	keep if num >= 100		// Keep quarter/year cell with more than 100 firms
 							// This keeps 40 countries. It is the data of quaterly GDP growth that reduces the 
 							// number of observations to 28
 	sort iso3 qtr
@@ -321,7 +325,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 			
 			*Expansions 
 			sum g_saler_ll if inlist(fyearq,2003,2004,2005,2006) | (fyearq >= 2010 & fyearq <= 2014) ,d
-			gen gz_saler_llb_gr = (g_saler_ll-r(p50))/r(sd) // Adjust distribution to have 0 mean and unit variance
+			gen gz_saler_llb_gr = (g_saler_ll-r(p50))/r(sd) // Adjust distribution to have 0 median and unit variance
 				
 			kdensity gz_saler_llb_gr if inlist(fyearq,2003,2004,2005,2006) | ///
 				(fyearq >= 2010 & fyearq <= 2014),   n(600) ///
@@ -712,9 +716,46 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	stats(r2 N, labels(R-squared "N. of Observations "))  star(* 0.1 ** 0.05 *** 0.01) se  	///
 	keep(me)
 	eststo clear
+
+*Replica Figure 6 on TFP and Appendix 13
+	
+	*Load 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", ///
+		sheet("Amadeus TFP Shocks") cellrange(A1:AM1810) first clear 
+
+	*Droping Outliers
+	egen isonum = group(iso3)
+		
+	foreach ii in 1 2 3 4{
+	_pctile ksk`ii', p(1 99)
+	replace ksk`ii' = . if (ksk`ii' < r(r1) | ksk`ii' > r(r2))
+	_pctile me`ii', p(1 99)
+	replace me`ii' = . if (me`ii' < r(r1) | me`ii' > r(r2))
+	}
+	reg ksk1 me1 i.year i.isonum i.nai 
+	local be : di %4.2f _b[me1]
+	local se : di %4.2f _se[me1]
+	binscatter ksk1 me1, ///
+		control(i.year i.isonum i.nai ) n(80) nodraw  savedata("figs/bdv_tfps")  replace
+		
+		preserve 
+		insheet using "figs/bdv_tfps.csv", clear names comma
+		erase "figs/bdv_tfps.csv"	
+		erase "figs/bdv_tfps.do"	
+		tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+		(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
+		xtitle("Average TFP Shock (%)",size(medlarge))  plotregion(lcolor(black)) ///
+		ytitle("Kelley Skewness of TFP Shocks (%)", color(black) size(medlarge))  ///
+		title("", color(blue) size(large)) ///
+		graphregion(color(white))  ///
+		ylabel(, labsize(medlarge)) xlabel(, labsize(medlarge)grid) ///
+		legend(off) graphregion(color(white))
+		cap: graph export "figs/SBC_Fig6.pdf", replace 
+		restore 
+		
 	
 
-*Replica Figure 6
+*Replica Figure 7A to 7D
 	*Load
 	import excel using "replicationxls/SBC_CENSUS_LBD.xls", sheet("Firm Employment Growth Moments") cellrange(A1:I40) first clear 
 	keep if year>= 1978
@@ -868,7 +909,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		ytitle("Kelley Skewness of Employment Growth (%)", size(medlarge)  axis(2)) ylabel(,axis(2))) , ///
 		 graphregion(color(white)) xtitle("") ytitle("P90-P10", axis(1)) xlabel(1978(4)2014, grid)  plotregion(lcolor(black)) ///
 		legend( rows(3)  ring(0) position(7) region(lcolor(white)) ///
-	order(2 "KSK of Log-change" 3 "KSK of Arc-percent change"))	
+	order(2 "KSK of Log-change" 3 "KSK of Arc-percentage change"))	
 		cap noisily: graph export "figs/SBC_Fig6F.pdf", replace	
 
 
@@ -1000,7 +1041,8 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 
 *Replica figures A.3a and A.3b
 	*Load for Employment
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Annual Employment Growth") cellrange(A1:V1097) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", ///
+		sheet("USA Annual Employment Growth") cellrange(A1:V1097) first clear 
 
 	*Clean
 	drop if year < 1970
@@ -1189,7 +1231,168 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		region(lcolor(white))) graphregion(color(white))
 	cap noisily: graph export "figs/SBC_Fig14C.pdf", replace
 	
+*Appendix Figure: US Shares of Right and Left Tail Dispersion
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", ///
+		sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
 
+	*Clean
+	drop if year < 1970
+	drop if inlist(group,"naic99","all")
+	egen idnaics = group(group)
+	tsset idnaic year
+	
+	*Gen shares 
+	gen p9050s = 100*p9050/p9010 
+	gen p5010s = 100*p5010/p9010
+	
+	*Rescale
+	replace me = 100*me
+	
+	*Gen numeric value of iso
+	egen iso_id = group(idnaic)
+	
+	*Generating the binscatters
+	preserve 
+		binscatter 	p9050s me,  nquantiles(50)  controls(i.year i.iso_id) ///
+			savedata("figs/sale_naics_1yr") replace
+		insheet using "figs/sale_naics_1yr.csv", clear names comma
+		erase "figs/sale_naics_1yr.csv"
+		erase "figs/sale_naics_1yr.do"
+		
+		*Saving Scatter
+		tw (scatter p9050s me, mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+		(lfit p9050s me,  lpattern(dash) lwidth(thick)) ,  ///						
+		xtitle("Average of Firm Sales Growth (%)",size(medlarge))  plotregion(lcolor(black)) ///
+		ytitle("Ratio of P90-P50 to P90-P10 (%)") ///
+		graphregion(color(white))  ylabel(30(10)70) xlabel(,grid) ///
+		legend(off) graphregion(color(white))  	
+		graph export "figs/SBC_Fig20A.pdf", replace
+	restore 
+	
+	preserve 
+		binscatter 	p5010s me,  nquantiles(50)  controls(i.year i.iso_id) ///
+			savedata("figs/sale_naics_1yr") replace
+		insheet using "figs/sale_naics_1yr.csv", clear names comma
+		erase "figs/sale_naics_1yr.csv"
+		erase "figs/sale_naics_1yr.do"
+		
+		*Saving Scatter
+		tw (scatter p5010s me, mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+		(lfit p5010s me,  lpattern(dash) lwidth(thick)) ,  ///						
+		xtitle("Average of Firm Sales Growth (%)",size(medlarge))  plotregion(lcolor(black)) ///
+		ytitle("Ratio of P50-P10 to P90-P10 (%)") ///
+		graphregion(color(white)) ylabel(30(10)70) xlabel(,grid) ///
+		legend(off) graphregion(color(white))  	
+		graph export "figs/SBC_Fig20B.pdf", replace
+	restore 
+	
+	
+*Appendix: Replica Figure TFP and Regressions Tables for TFP measures
+
+*Load  data
+	set more off
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", ///
+		sheet("Amadeus TFP Shocks") cellrange(A1:AM1810) first clear 
+
+	*Droping Outliers
+	egen isonum = group(iso3)
+		
+	foreach ii in 1 2 3 4{
+	_pctile ksk`ii', p(1 99)
+	replace ksk`ii' = . if (ksk`ii' < r(r1) | ksk`ii' > r(r2))
+	_pctile me`ii', p(1 99)
+	replace me`ii' = . if (me`ii' < r(r1) | me`ii' > r(r2))
+	}
+		
+	reg ksk2 me2 i.year i.isonum i.nai 
+	local be : di %4.2f _b[me2]
+	local se : di %4.2f _se[me2]
+	binscatter ksk2 me2, ///
+		control(i.year i.isonum i.nai ) n(80) nodraw  savedata("figs/bdv_tfps")  replace
+	preserve 
+		insheet using "figs/bdv_tfps.csv", clear names comma
+		erase "figs/bdv_tfps.csv"	
+		erase "figs/bdv_tfps.do"	
+			tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+			(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
+			xtitle("Average TFP Shock (%)",size(medlarge))  plotregion(lcolor(black)) ///
+			ytitle("Kelley Skewness of TFP Shocks (%)", color(black) size(medlarge))  ///
+			title("", color(blue) size(large)) ///
+			graphregion(color(white))  ///
+			ylabel(, labsize(medlarge)) xlabel(-4(2)4, labsize(medlarge)grid) ///
+			legend(off) graphregion(color(white))
+			graph export "figs/SBC_Fig21A.pdf", replace 
+	restore 
+	
+	reg ksk3 me3 i.year i.isonum i.nai 
+	local be : di %4.2f _b[me3]
+	local se : di %4.2f _se[me3]
+	binscatter ksk3 me3  if nobs >=100 & me3 >-10 & me3 < 10, ///
+		control(i.year i.isonum i.nai ) n(80) nodraw  savedata("figs/bdv_tfps")  replace
+	
+	preserve 
+		insheet using "figs/bdv_tfps.csv", clear names comma
+		erase "figs/bdv_tfps.csv"	
+		erase "figs/bdv_tfps.do"	
+			tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+			(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
+			xtitle("Average TFP Shock (%)",size(medlarge))  plotregion(lcolor(black)) ///
+			ytitle("Kelley Skewness of TFP Shocks (%)", color(black) size(medlarge))  ///
+			title("", color(blue) size(large)) ///
+			graphregion(color(white))  ///
+			ylabel(, labsize(medlarge)) xlabel(-4(2)4, labsize(medlarge)grid) ///
+			legend(off) graphregion(color(white))
+			cap: graph export "figs/SBC_Fig21B.pdf", replace 
+	restore 
+	
+	reg ksk4 me4 i.year i.isonum i.nai 
+	local be : di %4.2f _b[me4]
+	local se : di %4.2f _se[me4]
+	binscatter ksk4 me4  if nobs >=100 & me3 >-10 & me3 < 10, ///
+		control(i.year i.isonum i.nai ) n(80) savedata("figs/bdv_tfps") nodraw  replace
+	
+	preserve 
+		insheet using "figs/bdv_tfps.csv", clear names comma
+		erase "figs/bdv_tfps.csv"	
+		erase "figs/bdv_tfps.do"	
+			tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+			(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
+			xtitle("Average TFP Shock (%)",size(medlarge))  plotregion(lcolor(black)) ///
+			ytitle("Kelley Skewness of TFP Shocks (%)", color(black) size(medlarge))  ///
+			title("", color(blue) size(large)) ///
+			graphregion(color(white))  ///
+			ylabel(, labsize(medlarge)) xlabel(-6(2)6, labsize(medlarge)grid) ///
+			legend(off) graphregion(color(white))
+			cap: graph export "figs/SBC_Fig21C.pdf", replace 
+	restore 
+	
+	*Regressions using Growth Rate of Sales
+	set more off
+	eststo clear
+	eststo sk_model1: reg ksk1 meg i.year i.isonum i.nai, vce(cl isonum)
+	eststo sk_model2: reg ksk2 meg i.year i.isonum i.nai, vce(cl isonum)
+	eststo sk_model3: reg ksk3 meg i.year i.isonum i.nai, vce(cl isonum) 
+	eststo sk_model4: reg ksk4 meg i.year i.isonum i.nai, vce(cl isonum) 
+	
+	*Save table with results 
+	esttab sk_model* using  "figs_slide/TABLE_TFP_KSK.tex", replace   ///
+	stats(r2 N, labels(R-squared "N. of Observations "))  star(* 0.1 ** 0.05 *** 0.01) se  	///
+	keep(meg)
+	eststo clear
+
+	*Regressions and the country-level
+	set more off
+	levelsof iso3 , local(iso) clean
+	foreach ii of local iso {
+		eststo sk_model`ii': reg ksk2 me2 i.year i.nai if iso3 == "`ii'", vce(cl nai)
+	}
+	
+	esttab sk_model* using  "figs_slide/TABLE_TFP_KSK_CTYES.tex", replace   ///
+	stats(r2 N, labels(R-squared "N. of Observations "))  star(* 0.1 ** 0.05 *** 0.01) se  	///
+	keep(me2)
+	eststo clear
+		
+	
 *Replica Appendix Table of List of Countries.
 	
 	*Sales 

@@ -5,11 +5,12 @@
 	Skewed Business Cycles by Salgado/Guvenen/Bloom 
 	(original version SBC_Clean_QUSA_v6.do)
 	First version April, 13, 2019
-	This  version May, 31 2019	
+	This  version July, 16 2019	
 	
-	In case of any questions contact 
-	Sergio Salgado I
-	salga010@umn.edu
+	In case of any suggestions/questions, please contact 
+	Sergio Salgado I.
+	ssalgado@wharton.upenn.edu
+	https://sergiosalgadoi.wordpress.com/
 	
 	The raw data was last updated on April, 11, 2018
 	
@@ -32,7 +33,7 @@ global adata = "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018
 
 global  basecpi = 217.07 		//  Base is 2009q4 to be consistent with te base of the GDP growth.
 global abasecpi = 214.5647		// Base of annual CPI
-global aclean = "no"
+global aclean = "yes"
 global qclean = "no"
 global amomnt = "yes"
 global qmomnt = "no"
@@ -169,6 +170,20 @@ if "${aclean}" == "yes" {
 	9100-9729	Public Administration
 	9900-9999	Nonclassifiable
 	*/	
+	
+*-- Leverage categories
+	sort fyear
+	replace lev_tot = . if lev_tot > 2
+	by fyear: egen p25_lev_tot = pctile(lev_tot), p(25)
+	by fyear: egen p50_lev_tot = pctile(lev_tot), p(50)
+	by fyear: egen p75_lev_tot = pctile(lev_tot), p(75)
+	gen cat_lev_tot = .
+	replace cat_lev_tot = 1 if lev_tot  <= p25_lev_tot & cat_lev_tot == . 
+	replace cat_lev_tot = 2 if lev_tot  <= p50_lev_tot & cat_lev_tot == . 
+	replace cat_lev_tot = 3 if lev_tot  <= p75_lev_tot & cat_lev_tot == . 
+	replace cat_lev_tot = 4 if lev_tot  >  p75_lev_tot & cat_lev_tot == . & lev_tot != . 
+	drop p*_lev_tot
+	tsset gvkey fyear
 
 *-- Investmemt rate 
 	gen inv_rate = capx/L1.ppent			// CHECK, THIS IS NOT IN THE DATA 
@@ -561,7 +576,7 @@ if "${amomnt}" == "yes"{
 		// Choose whether moments will be weigthed. Two cases wbases:w, uw
 	
 	*levelsof naiclab, local(nlab) clean	
-	local subgp = "all"		
+	local subgp = "cat_lev_tot1 cat_lev_tot2 cat_lev_tot3 cat_lev_tot4 all"		
 	disp("`subgp'") 				
 		// Creates the local for the groups for which moments will be calculated
 		// here is all sample and within industry
@@ -571,9 +586,12 @@ if "${amomnt}" == "yes"{
 	*local variables "`variables' g_saler_ll g_saler_llb g_saler_ac g_saler_ll3 g_saler_ac3 g_emp_ll g_emp_ac g_emp_ll3 g_emp_ac3"	
 	*disp("`variables'")
 	
-	*Few variables g_saler_ll g_emp_ll 
-	local variables "g_gpr_ll g_invfgr_ll g_saler_ll g_saler_pp g_lsaler_res_ll lsaler_res g_saler2emp_ll g_emp_ll"
+	*Few variables g_saler_ll g_emp_ll
+	local variables "g_saler_ll g_emp_ll"
+	*local variables "g_gpr_ll g_invfgr_ll g_saler_ll g_saler_pp g_lsaler_res_ll lsaler_res"
+	*local variables = "`variables' g_saler2emp_ll g_emp_ll g_saler_ll3 g_emp_ll3 g_saler_ll5 g_emp_ll5"
 	disp("`variables'")
+	*asd
 	
 *-- Starts the main loop to calculate moments 
 
@@ -587,7 +605,7 @@ if "${amomnt}" == "yes"{
 			
 			preserve 
 			*Select variables
-			keep saler emp ave_emp* ave_saler* ave_atr* identifica gvkey fyearq naiclab `vv'
+			keep saler emp ave_emp* ave_saler* ave_atr* identifica gvkey fyearq naiclab cat_lev_tot `vv'
 			drop if `vv' == . 
 			 
 			*Select year
@@ -604,6 +622,10 @@ if "${amomnt}" == "yes"{
 			*Select subgroup 
 			if (substr("`sg'",1,4) == "naic"){
 				keep if naiclab == "`sg'"
+			}
+			if (substr("`sg'",1,3) == "cat"){
+				local auxi = substr("`sg'",-1,.)
+				keep if cat_lev_tot == `auxi'
 			}
 			
 			*Select w-var (When employment series start, replace the wbar)
@@ -765,7 +787,7 @@ if "${amomnt}" == "yes"{
 *-- Save for results 	
 	compress
 	order base wei subgroup vari fyear
-	saveold "${cdata}/SBC_TimeSeries_CSTAT_ANNUAL_MAY2019.dta", replace 	
+	saveold "${cdata}/SBC_TimeSeries_CSTAT_ANNUAL_JUL2019_LEV.dta", replace 	
 } // END OF THE ANNUAL MOMENTS SECTION
 **
 

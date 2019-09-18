@@ -5,9 +5,11 @@
 	First version April, 12, 2019
 	This  version April, 12, 2019	
 	
-	In case of any questions contact 
-	Sergio Salgado I
-	salga010@umn.edu
+	In case of any suggestions/questions, please contact 
+	Sergio Salgado I.
+	ssalgado@wharton.upenn.edu
+	https://sergiosalgadoi.wordpress.com/
+	
 	
 	The raw data was last updated on April, 11, 2018
 	
@@ -21,7 +23,7 @@
 clear all
 set more off 
 
-*Location and data set
+*Location and datasets
 global dfolder = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/raw"	
 			// Location of raw data 
 global cdata = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/out"		
