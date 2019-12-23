@@ -5,12 +5,12 @@
 	Skewed Business Cycles by Salgado/Guvenen/Bloom 
 	(original version CleanGlobalCompustat_Mar2019_SP.do)
 	First version April, 14, 2019
-	This  version April, 14, 2019	
+	This  version Dec , 16, 2019	
 	
 	In case of any suggestions/questions, please contact 
 	Sergio Salgado I.
 	ssalgado@wharton.upenn.edu
-	https://sergiosalgadoi.wordpress.com/
+	https://sergiosalgado.net/
 	
 	The raw data was last updated on April, 20, 2018
 	
@@ -23,12 +23,14 @@
 
 clear all
 set more off
+cd "../SBC-Replication/"
+	// Main location
 
-global dfolder = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/raw"	
+global dfolder = "raw"	
 			// Location of raw data 
-global cdata = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/out"		
+global cdata = "out"		
 			// Location of clean data will be saved 
-global adata = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/agg"
+global adata = "agg"
 			// Location aggregate auxiliary data
 
 *Local with the name of countries. Notice some contries will not have 

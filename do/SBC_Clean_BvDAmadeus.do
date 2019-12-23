@@ -15,10 +15,11 @@
 // Options 
 clear all 
 set more off 
-cd "/home/salga010/Documents/KPS/KPS1TAX"
-global dfolder = "/home/salga010/Desktop/SBC/Amadeus/Data"					
+cd "../SBC-Replication/"
+	// Main location
+global dfolder = "raw"					
 			// Location of raw data 
-global cdata = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/out"		
+global cdata = "out"		
 			// Location of clean data will be saved 
 run "do/SBC_bvd_progs.do"
 			// Simple programs used in the calculations

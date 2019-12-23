@@ -1,29 +1,32 @@
 {
 \def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
-\begin{tabular}{l*{9}{c}}
+\begin{tabular}{l*{10}{c}}
 \hline\hline
-            &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}&\multicolumn{1}{c}{(6)}&\multicolumn{1}{c}{(7)}&\multicolumn{1}{c}{(8)}&\multicolumn{1}{c}{(9)}\\
-            &\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{L4.ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}\\
+            &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}&\multicolumn{1}{c}{(6)}&\multicolumn{1}{c}{(7)}&\multicolumn{1}{c}{(8)}&\multicolumn{1}{c}{(9)}&\multicolumn{1}{c}{(10)}\\
+            &\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{L4.ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk1}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}&\multicolumn{1}{c}{ksk}\\
 \hline
-dAGDPPC     &       4.640\sym{***}&       5.474\sym{***}&                     &       5.385\sym{***}&       3.194\sym{***}&                     &                     &                     &                     \\
-            &     (1.450)         &     (1.071)         &                     &     (1.474)         &     (1.059)         &                     &                     &                     &                     \\
+dAGDPPC     &       4.640\sym{***}&       5.403\sym{***}&                     &       5.936\sym{***}&       3.096\sym{***}&                     &                     &                     &                     &                     \\
+            &     (1.450)         &     (1.064)         &                     &     (1.363)         &     (1.077)         &                     &                     &                     &                     &                     \\
 [1em]
-dQGDPPC     &                     &                     &       2.088\sym{**} &                     &                     &       2.165\sym{**} &                     &                     &                     \\
-            &                     &                     &     (1.029)         &                     &                     &     (0.872)         &                     &                     &                     \\
+dQGDPPC     &                     &                     &       2.089\sym{**} &                     &                     &       2.164\sym{**} &                     &                     &                     &                     \\
+            &                     &                     &     (1.029)         &                     &                     &     (0.872)         &                     &                     &                     &                     \\
 [1em]
-me\_sales\_g1 &                     &                     &                     &                     &                     &                     &       6.619\sym{***}&                     &                     \\
-            &                     &                     &                     &                     &                     &                     &     (1.179)         &                     &                     \\
+megs        &                     &                     &                     &                     &                     &                     &       1.143\sym{***}&                     &                     &                     \\
+            &                     &                     &                     &                     &                     &                     &     (0.352)         &                     &                     &                     \\
 [1em]
-me          &                     &                     &                     &                     &                     &                     &                     &       13.24\sym{***}&                     \\
-            &                     &                     &                     &                     &                     &                     &                     &     (1.390)         &                     \\
+me\_sales\_g1 &                     &                     &                     &                     &                     &                     &                     &       6.429\sym{***}&                     &                     \\
+            &                     &                     &                     &                     &                     &                     &                     &     (1.162)         &                     &                     \\
 [1em]
-me\_sales\_g2 &                     &                     &                     &                     &                     &                     &                     &                     &       1.354\sym{**} \\
-            &                     &                     &                     &                     &                     &                     &                     &                     &     (0.509)         \\
+me          &                     &                     &                     &                     &                     &                     &                     &                     &       13.44\sym{***}&                     \\
+            &                     &                     &                     &                     &                     &                     &                     &                     &     (1.415)         &                     \\
+[1em]
+me\_sales\_g2 &                     &                     &                     &                     &                     &                     &                     &                     &                     &       1.355\sym{**} \\
+            &                     &                     &                     &                     &                     &                     &                     &                     &                     &     (0.509)         \\
 \hline
-R-squared   &                     &                     &                     &       0.269         &       0.379         &       0.410         &       0.277         &       0.396         &       0.242         \\
-N. of Observations &          39         &          47         &         184         &         701         &         720         &        2428         &        1045         &        1046         &        4133         \\
+R-squared   &                     &                     &                     &       0.277         &       0.381         &       0.410         &       0.139         &       0.274         &       0.394         &       0.242         \\
+N. of Observations &          39         &          47         &         184         &         701         &         720         &        2428         &        3503         &        1045         &        1046         &        4133         \\
 \hline\hline
-\multicolumn{10}{l}{\footnotesize Standard errors in parentheses}\\
-\multicolumn{10}{l}{\footnotesize \sym{*} \(p<0.1\), \sym{**} \(p<0.05\), \sym{***} \(p<0.01\)}\\
+\multicolumn{11}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{11}{l}{\footnotesize \sym{*} \(p<0.1\), \sym{**} \(p<0.05\), \sym{***} \(p<0.01\)}\\
 \end{tabular}
 }

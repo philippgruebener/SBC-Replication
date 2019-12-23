@@ -1,24 +1,20 @@
 /*
 	This file replicates the empirical results for 
 	Skewed Business Cycles by Salgado, Guvenen, and Bloom 
-	First version April, 04, 2019
-	This  version August,10, 2019
+	First version Apr, 04, 2019
+	This  version Dec, 16, 2019
 	
 	In case of any suggestions/questions, please contact 
-	Sergio Salgado I.
+	Sergio Salgado
 	ssalgado@wharton.upenn.edu
 	https://sergiosalgadoi.wordpress.com/
-	
-	Note: Some of the figure numbers here might not match figure numbers in the paper
-		
-	
 */
 
 clear all
 set more off
 set matsize 1000
-cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
-	// Direct to where files are saved
+cd "../SBC-Replication/"
+	// Main location
 
 *##################################	
 *REPLICA TABLE 2 OF PAPER
@@ -65,7 +61,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	
 	*Column 2. USA Sales Growth
 	*Load 
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Annual Sales Growth") cellrange(A1:U1097) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Annual Sales Growth") cellrange(A1:U1097) first clear 
 	replace ksk = 100*ksk
 	keep if group == "all"
 	merge 1:1 year using "replicationxls/auxA.dta", nogenerate keep(1 3)
@@ -86,7 +82,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	drop aux
 	
 	*Column 3. USA Stock Returns
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Quarter Stock Returns") cellrange(A1:U189) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Quarter Stock Returns") cellrange(A1:U189) first clear 
 	replace ksk = 100*ksk
 	keep if group == "all"
 	merge 1:1 qtr using "replicationxls/auxQ.dta", nogenerate keep(1 3)
@@ -114,7 +110,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	
 	*Column 4. Cross Country Employment Growth
 	set more off
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Country Employment Growth") cellrange(A1:T706) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("Country Employment Growth") cellrange(A1:T706) first clear 
 	replace ksk = 100*ksk
 	sort iso3 year
 	merge 1:1 iso3 year using "replicationxls/auxC.dta",nogenerate
@@ -132,7 +128,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	eststo ksk_model4 : reg ksk dAGDPPC i.year i.iso_id, vce(cl iso_id )
 	
 	*Column 5. Cross Country Sales Growth
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Country Annual Sales Growth") cellrange(A1:T721) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("Country Annual Sales Growth") cellrange(A1:T721) first clear 
 	replace ksk = 100*ksk
 	sort iso3 year
 	merge 1:1 iso3 year using "replicationxls/auxC.dta",nogenerate
@@ -151,9 +147,8 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	
 	*Column 6. Cross Country Stock Returns
 	*NOTE: data from the US is the same as the one used in column 3
-
 	set more off
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Country Stock Returns") cellrange(A1:Q9646) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("Country Stock Returns") cellrange(A1:Q9646) first clear 
 	replace ksk = 100*ksk
 	
 	keep if num >= 100		// Keep quarter/year cell with more than 100 firms
@@ -182,9 +177,43 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	drop if ksk > 90
 	eststo ksk_model6: reg  ksk dQGDPPC i.iso_id i.qtr, vce(cl iso_id) 
 	
-	*Column 7. Industry Employment
+	*Colum 7. Cross Country TFP
+	*Load  data
+	set more off
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", ///
+		sheet("Amadeus TFP Shocks") cellrange(A1:CW7420) first clear 
+
+	*Droping Outliers and moments calculated with less than 100 observations. 
+	*results stronger if we do not control for outliers/number of observations
+	egen isonum = group(iso3)
+	keep if nobs1 >100										
+	foreach ii in 1 2 3 4{
+		_pctile ksk`ii', p(5 95)
+		replace ksk`ii' =  r(r1) if (ksk`ii' < r(r1))
+		replace ksk`ii' =  r(r2) if (ksk`ii' > r(r2))
+		_pctile me`ii', p(5 95)
+		replace me`ii' =  r(r1) if (me`ii' < r(r1))
+		replace me`ii' =  r(r2) if (me`ii' > r(r2))
+	}
+		
+	*This is for the regression table
+	egen isoxnai = group(isonum nai)
+	tsset isoxnai year
+	gen aux = megs
+	drop megs 
+	rename aux megs
+	
+	levelsof isonum, local(isos)
+	foreach ii of local isos{
+			sum megs if isonum == `ii' 
+			replace megs = megs/r(sd) if isonum == `ii'
+	}
+	eststo ksk_model7:  reg ksk1 megs i.year i.isonum i.nai, vce(cl isonum)
+	
+	
+	*Column 8. Industry Employment
 		*Load data of sales growth 
-		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
+		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
 		
 		drop if inlist(group,"all")
 		egen idnaics = group(group )
@@ -206,7 +235,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		save "replicationxls/aux_data_g1.dta",replace
 		
 		*Load data of employment
-		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Annual Employment Growth") cellrange(A1:V1095) first clear 
+		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Annual Employment Growth") cellrange(A1:V1095) first clear 
 		merge 1:1 group year ///
 			using  "replicationxls/aux_data_g1.dta", nogenerate keep(1 3)
 		drop if inlist(group,"all")
@@ -217,10 +246,10 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		drop if ksk == . 
 		replace ksk = 100*ksk
 		
-		eststo ksk_model7: reg ksk me_sales_g1 i.year i.idnaic , vce(cl idnaic)	
+		eststo ksk_model8: reg ksk me_sales_g1 i.year i.idnaic , vce(cl idnaic)	
 	
-	*Column 8. Industry Sales
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
+	*Column 9. Industry Sales
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
 	
 	drop if inlist(group,"all")
 	egen idnaics = group(group )
@@ -241,12 +270,12 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 			replace me = me/(r(sd)) if group == "`vv'" 
 	}
 	
-	eststo ksk_model8: reg ksk me i.year i.idnaic, cl(idnaics)
+	eststo ksk_model9: reg ksk me i.year i.idnaic, cl(idnaics)
 	
 	
-	*Column 9. Industry Stock Returns	
+	*Column 10. Industry Stock Returns	
 		*Load data of sales growth 
-		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Quarter Sales Growth") cellrange(A1:U4325) first clear 
+		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Quarter Sales Growth") cellrange(A1:U4325) first clear 
 		
 		drop if inlist(group,"all")
 		egen idnaics = group(group )
@@ -267,7 +296,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		save "replicationxls/aux_data_g2.dta",replace
 	
 		*Load data of Stock Prices
-		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Quarter Stock Returns") cellrange(A1:U4325) first clear 
+		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Quarter Stock Returns") cellrange(A1:U4325) first clear 
 		drop if inlist(group,"all")
 		egen idnaics = group(group )
 		
@@ -282,82 +311,37 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		*gen qtr as numebr for regression
 		egen nqtr = group(qtr)
 		
-		eststo ksk_model9: reg ksk me_sales_g2  i.nqtr i.idnaic, cl(idnaics)
+		eststo ksk_model10: reg ksk me_sales_g2  i.nqtr i.idnaic, cl(idnaics)
+		
+	*Column 11 from Census. Underlying data not reported;	
 	
 	*Save table with results 
 	esttab ksk_model* using  "figs/TABLE2.tex", replace   ///
 	stats(r2 N, labels(R-squared "N. of Observations "))  star(* 0.1 ** 0.05 *** 0.01) se  	///
-	keep(dAGDPPC dQGDPPC me me_sales_g1 me_sales_g2)
+	keep(dAGDPPC dQGDPPC me megs me_sales_g1 me_sales_g2)
 	eststo clear
 	
 *##################################	
 *REPLICA MAIN FIGURES OF THE PAPER 
 *##################################	
 
-*Replica Figure 1A. This figure was created using LBD data. Replication material is not available
+*Replica Figure 1A. This figure was created using LBD data. Underlying data not reported
 
 *Replica Figure 1B. The first part only replicates plot. To replicate kernel density from 
 *the underlying data, run do-files for raw data,
 *construct the file SBC_A_CSTAT_1961_2018_clean.dta using corresponding do-file. 
 	
 		*Load 
-		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Kernel Density") cellrange(A1:D87) first clear 
+		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Kernel Density") cellrange(A1:D87) first clear 
 		
 		*Plot
-		tw line boom_density rece_density rece_x, ///							
-		  lwidth(medthick medthick) lcolor(blue red) lpattern(dash solid)  xlabel(-2.0(0.5)2.0,grid) ///						
-		xtitle("Sales Growth") ytitle("Density") plotregion(lcolor(black)) ///
-		graphregion(color(white))  ///
+		tw line boom_density rece_density rece_x if rece_x >= -1.5 & rece_x <= 1.5, ///							
+		  lwidth(medthick medthick) lcolor(blue red) lpattern(dash solid)  ///
+			xlabel(-1.5 "-1.5" -1.0 "-1.0" -0.5  "-.5" 0  "0".5  ".5" 1.0  "1.0" 1.5  "1.5",grid format(%9.1f)) ///						
+		xtitle("Log Sales Growth") ytitle("Density") plotregion(lcolor(black)) ///
+		graphregion(color(white)) ylabel(0 "0" 0.5 "0.5" 1 "1" 1.5 "1.5" 2 "2") ///
 		legend(order(1 "Expansion" 2 "Recession") rows(2) position(2) ring(0)) graphregion(color(white))  	
 		cap noisily: graph export "figs/SBC_Fig1B.pdf", replace	
-
-		/*To generate this plot using firm level data use following code
-		*Important: the file SBC_A_CSTAT_1961_2018_clean.dta must be created first
-		
-		*Load data
-			use gvkey fyearq g_saler_ll if fyearq >= 1970 & fyearq <= 2014 ///
-				 &  g_saler_ll != . using "SBC_A_CSTAT_1961_2018_clean.dta", clear 	
-			
-			*Select the Sample
-			gen samp = inlist(fyearq,2003,2004,2005,2006,2001,2008) | (fyearq >= 2010 & fyearq <= 2014)
-			bys gvkey: egen samp_yr = sum(samp)
-			keep if inlist(fyearq,2003,2004,2005,2006,2001,2008) | (fyearq >= 2010 & fyearq <= 2014)
-			
-			*Expansions 
-			sum g_saler_ll if inlist(fyearq,2003,2004,2005,2006) | (fyearq >= 2010 & fyearq <= 2014) ,d
-			gen gz_saler_llb_gr = (g_saler_ll-r(p50))/r(sd) // Adjust distribution to have 0 median and unit variance
-				
-			kdensity gz_saler_llb_gr if inlist(fyearq,2003,2004,2005,2006) | ///
-				(fyearq >= 2010 & fyearq <= 2014),   n(600) ///
-				generate(boom_x boom_density)  nograph
-			local bwidth = r(bwidth) 
-												
-			sum gz_saler_llb_gr if inlist(fyearq,2003,2004,2005,2006) | (fyearq >= 2010 & fyearq <= 2014) , d		
-			global p10 : di %4.2f r(p10)	
-			global p90 : di %4.2f r(p90) 	
-			disp (r(p90) + r(p10) - 2*r(p50))/(r(p90) - r(p10))		// Show Skewness
-			
-			*Recession 
-			drop gz_saler_llb_gr
-			sum g_saler_ll if inlist(fyearq,2001,2008),d
-			gen gz_saler_llb_gr = (g_saler_ll-r(p50))/r(sd)		// Adjust distribution to have 0 mean and unit variance
-						
-			sum gz_saler_llb_gr if inlist(fyearq,2001,2008), d		
-			global p102 : di %4.2f r(p10)	
-			global p902 : di %4.2f r(p90) 	
-			disp (r(p90) + r(p10) - 2*r(p50))/(r(p90) - r(p10))  	// Show Skewness
-			
-			kdensity gz_saler_llb_gr if inlist(fyearq,2001,2008),  bwidth(`bwidth')  ///
-				at(boom_x) generate(rece_x rece_density)  nograph
-
-			*Preparing data for plotting
-			keep boom* rece*
-			drop if boom_density ==.
-			keep if rece_x <2.0 & rece_x >-2.0 	// Chop the borders for better plot
-			sort rece_x
-			order rece_x rece_density boom_density
-		*/
-
 
 *Replica Figure 2A:
 	*Load
@@ -376,21 +360,22 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	replace recession = 1 if year == 2008
 	replace recession = 2/4 if year == 2009 
 	
+	replace ksk = ksk/100
+	
 	*Plot
 	tw  (bar rec year, c(l) color(gray*0.5) yscale(off)) ///	
 	(connected  ksk year , color(blue black) lpattern(solid dash dash_dot) ///
 	msymbol(O S) msize(large) mfcolor(blue*0.25 black*0.25)  ///	Fill color
 	mlcolor(blue black) ///
 	yaxis(2) yscale(alt axis(2)) plotregion(lcolor(black)) ///
-	ytitle("Kelley Skewness of Employment Growth (%)", axis(2)) ylabel(-20(10)30,axis(2))) , ///
+	ytitle("Kelley Skewness of Log Employment Growth", axis(2)) ylabel(-0.2(0.1)0.3,axis(2))) , ///
 	 graphregion(color(white)) xtitle("") xlabel(1978(4)2014,grid) ///
 	legend( off position(7) ring(0) rows(2) order(2 "Census LBD" 3 "Compustat") region(lcolor(white))) graphregion(color(white))
 	cap noisily: graph export "figs/SBC_Fig2A.pdf", replace	
 
 *Replica Figure 2B:
-
 	*Load 
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1087) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1087) first clear 
 		
 	*Recession variable 
 	gen recession = 0
@@ -408,7 +393,6 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	replace recession = 2/4 if year == 2009
 	
 	*Scaling 
-	replace ksk = 100*ksk
 	keep if group == "all"
 	
 	*drop  if year if above 2013
@@ -421,7 +405,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	(connected ksk year, color(black) msymbol(O S) msize(large) mfcolor(black*0.25)  ///	Fill color
 	mlcolor(black)  plotregion(lcolor(black)) ///
 	yaxis(2) yscale(alt axis(2)) ///
-	ytitle("Kelley Skewness of Sales Growth (%)", axis(2)) ylabel(-20(10)30,axis(2))) , ///
+	ytitle("Kelley Skewness of Log Sales Growth", axis(2)) ylabel(-.2 "-.2" -.1 "-.1" 0 "0" .1 ".1" .2 ".2" .3 ".3",  axis(2))) , ///
 	 graphregion(color(white)) xtitle("") ytitle("P90-P10", axis(1)) xlabel(1970(5)2010, grid) ///
 	legend(size(small) off rows(1) order(1 "GDP growth" 2 "1 year" 3 "3 year" 4 "5 year") region(lcolor(white))) graphregion(color(white))
 		cap: graph export "figs/SBC_Fig2B.pdf", replace 
@@ -444,19 +428,22 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	replace recession = 1 if year == 2008
 	replace recession = 2/4 if year == 2009 
 	
+	replace p5010 = p5010/100
+	replace p9050 = p9050/100
+	
 	*Plot
 	tw  (bar rec year, c(l) color(gray*0.5) yscale(off)) ///	
 	(connected  p9050 p5010 year , color(blue black ) msymbol(O S) lpattern(dash solid dash_dot) ///
-		 yaxis(2) yscale(alt axis(2)) msize(large large) mfcolor(blue*0.25 black*0.25)  ///
-	ytitle("P9050 and P5010 of Employment Growth (%)", axis(2)) ylabel(,axis(2))) , ///
+		 yaxis(2) yscale(alt axis(2)) msize(medlarge medlarge) mfcolor(blue*0.25 black*0.25)  ///
+	ytitle("P90-P50 and P50-P10 of Log Employment Growth", axis(2)) ylabel(,axis(2))) , ///
 	 graphregion(color(white)) xtitle("") ytitle("P90-P10", axis(1)) xlabel(1978(4)2014,grid) ///
-	legend(position(7) ring(0) rows(2) order(2 "P90-P50" 3 "P50-P10") region(lcolor(white))) ///
+	legend(position(7) ring(0) rows(2) order(2 "P9050" 3 "P5010") region(lcolor(white))) ///
 	graphregion(color(white))  plotregion(lcolor(black))
 	cap noisily: graph export "figs/SBC_Fig3A.pdf", replace	
 	
 *Replica Figure 3B:
 	*Load 
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
 		
 	*Recession variable 
 	gen recession = 0
@@ -473,206 +460,120 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	replace recession = 1 if year == 2008
 	replace recession = 2/4 if year == 2009
 	
-	*Scaling 
-	replace ksk =   100*ksk
-	replace p5010 = 100*p5010
-	replace p9050 = 100*p9050
-	keep if group == "all"
-	
-	*drop  if year if above 2013
-	*Something odd happens in the data in 2014 that makes the skewness declines substantially which is 
-	*not associated to a particular aggregate shock. We are currently investigating the reasons behind this drop 
+	keep if group == "all"	
 	drop if year >= 2014
 	
 	*Plot
 	tw  (bar rece year,   c(l) color(gs12 ) yscale(off)) ///	
 	(connected p9050 p5010 year, ///
 	msymbol(O S) color(blue black) lpattern(longdash solid) yaxis(2) yscale(alt axis(2)) ///
-	msize(large large) mfcolor(blue*0.25 black*0.25)  plotregion(lcolor(black)) ///
-	ytitle("P9050 and P5010 of Sales Growth (%)", axis(2)) ylabel(,axis(2))) , ///
+	msize(medlarge medlarge) mfcolor(blue*0.25 black*0.25)  plotregion(lcolor(black)) ///
+	ytitle("P9050 and P5010 of Log Sales Growth", axis(2)) ylabel(0.1 ".1" 0.2 ".2" 0.3 ".3" 0.4 ".4" 0.5 ".5",axis(2))) , ///
 	 graphregion(color(white)) xtitle("") ytitle("P90-P10", axis(1)) xlabel(1970(5)2010,grid) ///
-	legend(ring(0) position(11) rows(2) order(2 "P90-P50" 3 "P50-P10") region(lcolor(white))) graphregion(color(white)) 
+	legend(ring(0) position(11) rows(2) order(2 "P9050" 3 "P5010") region(lcolor(white))) graphregion(color(white)) 
 		cap: graph export "figs/SBC_Fig3B.pdf", replace
 
-		
 
 *Replica Figure 4A. The first part only replicates plot. To replicate kernel density from 
 *the underlying data, run do-files for raw data,
-*construct the file SBC_Clean_BvD_OSI.dta and SBC_TimeSeries_OSI_APR2019_uw.dta using corresponding do-files. 
 	
-		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Country Kernel Density") cellrange(A1:D56) first clear 
+		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", ///
+			sheet("Country Kernel Density") cellrange(A1:D56) first clear 
 		
 		*Plot		  	
-		tw line boom_density rece_density rece_x, ///				
+		tw line boom_density rece_density rece_x if rece_x>= -1.5 & rece_x <= 1.5 , ///				
 		  lwidth(medthick medthick) lcolor(blue red) lpattern(dash solid) ///
-		xtitle("Sales Growth (%)") ytitle("Density")  plotregion(lcolor(black)) ///
-		graphregion(color(white)) xlabel(-2.0(0.5)2.0, grid) ///
-		legend(order(1 "Expansions" 2 "Recessions") rows(2) position(11) ring(0) ///
-		 region(lcolor(white))) graphregion(color(white))  
+		xtitle("Log Sales Growth") ytitle("Density")  plotregion(lcolor(black)) ///
+		graphregion(color(white)) xlabel(-1.5 "-1.5" -1 "-1" -.5 "-.5" 0 "0" .5 ".5" 1 "1" 1.5 "1.5", grid) ///
+		legend(order(1 "Expansions" 2 "Recessions") rows(2) position(2) ring(0) ///
+		 region(lcolor(black))) graphregion(color(white))  ylabel(0 "0" 0.5 "0.5" 1 "1" 1.5 "1.5")
 		cap noisily: graph export "figs/SBC_Fig4A.pdf", replace	
-		
-		
-		/*TO GENERRATE THIS PLOT USING THE RAW DATAM USE THE FOLLOWING CODE
-		*Important: the files SBC_Clean_BvD_OSI.dta and SBC_TimeSeries_OSI_APR2019_uw.dta must be created first
-		*Load data
-		use if g_saler_ll != . using "SBC_Clean_BvD_OSI.dta", clear 
-		rename cntrycde iso2
-		sort iso2 year
-		merge m:1 iso2 year using "SBC_TimeSeries_OSI_APR2019_uw.dta", keep(3) nogenerate
-		drop if inlist(iso3,"LKA","POL","VNM","CYM") 
-		drop if g_rgdp_pc_us_ac == . 
-		*Notice there are 39 countries, same number of countries used in regression
-		
-		*Create percentiles of the g_rgdp_pc_us_ac distribution
-		*Define recessions as periods in the lower percentile of the growth distribution 
-
-		preserve 
-			keep iso2 year g_rgdp_pc_us_ac
-			bys iso2 year: keep if _n == 1
-			
-			set more off
-			sort iso2
-			gen decile = 0
-			levelsof(iso2), local(cids)		
-			foreach vv of local cids{			
-				qui: _pctile g_rgdp_pc_us_ac  if iso2 == "`vv'", p(10)
-				qui: replace decile = 1 if g_rgdp_pc_us_ac <= r(r1) & iso2 == "`vv'"
-			}	
-			sort iso2 year
-			save "$dfolder/aux.dta", replace
-		restore
-		
-		*Merge back 
-		merge m:1 iso2 year using "$dfolder/aux.dta", nogenerate keep(1 3)
-		erase  "$dfolder/aux.dta"
-		
-		*Expansions 
-		sum g_saler_ll if decile == 0 ,d
-		gen gz_saler_llb_gr = (g_saler_ll-r(p50))/r(sd)
-			
-		kdensity gz_saler_llb_gr if decile == 0, n(600) generate(boom_x boom_density)  nograph
-		local bwidth = r(bwidth) 
-											
-		sum gz_saler_llb_gr if decile == 0 , d		
-		global p10 : di %4.2f r(p10)	
-		global p90 : di %4.2f r(p90) 	
-		disp (r(p90) + r(p10) - 2*r(p50))/(r(p90) - r(p10))
-		
-		*Recession 
-		drop gz_saler_llb_gr
-		sum g_saler_ll if decile == 1,d
-		gen gz_saler_llb_gr = (g_saler_ll-r(p50))/r(sd)
-					
-		sum gz_saler_llb_gr if decile == 1, d		
-		global p102 : di %4.2f r(p10)	
-		global p902 : di %4.2f r(p90) 	
-		disp (r(p90) + r(p10) - 2*r(p50))/(r(p90) - r(p10))
-		
-		kdensity gz_saler_llb_gr if decile == 1,  bwidth(`bwidth')  ///
-			at(boom_x) generate(rece_x rece_density)  nograph
-
-		*Preparing data for plotting
-		keep boom* rece*
-		drop if boom_density ==.
-		keep if rece_x <=2.0 & rece_x >=-2.0 
-		sort rece_x
-		order rece_x rece_density boom_density
-		*/
 		
 *Replica Figure 4B1 and 4B2
 	*Load 
 	set more off
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Country Employment Growth") cellrange(A1:T706) first clear 
-	
-	*Re scale
-	replace me  = 100*me	
-	replace ksk  = 100*ksk
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("Country Employment Growth") cellrange(A1:T706) first clear 
+
 	
 	*Gen numeric value of iso
 	egen iso_id = group(iso3)
 	
 	*Regression 
-	eststo bin_scatter1: reg ksk me i.year i.iso_id, vce(cl iso_id)
+	reg ksk me i.year i.iso_id, vce(cl iso_id)
 	
 	*Winsor some extreme growth values to have a more compact plot
 	*This does not change the results
-	replace me = 30 if me > 30
-	replace me = -30 if me < -30
+	replace me = .30 if me > .30
+	replace me = -.30 if me < -.30
+	keep if num > 100			// Keep only those calculated with more than 100 observations
+
 	
 	*Generating the binscatter 
-	binscatter 	 ksk me,  nquantiles(50)  controls(i.year i.iso_id) ///
+	binscatter 	 ksk me, nodraw nquantiles(80)  controls(i.year i.iso_id) ///
 		savedata("figs/emp_countries_1yr") 	replace
 	insheet using "figs/emp_countries_1yr.csv", clear names comma
 	erase "figs/emp_countries_1yr.csv"
 	erase "figs/emp_countries_1yr.do"
 	
 	*Saving Scatter 
-	tw (scatter ksk me, mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25) ) ///
+	tw (scatter ksk me, mcolor(navy) msize(vlarge) msymbol(O) mfcolor(navy*0.25) ) ///
 	(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
-	xtitle("Average of Firm Employment Growth (%)",size(medlarge))  plotregion(lcolor(black)) ///
-	ytitle("Kelley Skewness of Firm Employment Growth (%)") ///
-	graphregion(color(white))  ylabel(-30(15)60) xlabel(-15(5)25,grid)  ///
-	legend(off ) graphregion(color(white))  	
-	cap: graph export "figs/SBC_Fig4B1.pdf", replace
-	
+	xtitle("Average of Log Employment Growth",size(large))  plotregion(lcolor(black)) ///
+	ytitle("",size(large)) title("Log Employment Growth", color(black) size(vlarge)) ///
+	graphregion(color(white)) ylabel(-.30(.15).60,labsize(large)) xlabel(,grid labsize(large))  ///
+	legend(off ) graphregion(color(white))  name(FIGE4A, replace)		
 	
 	*Load 
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Country Annual Sales Growth") cellrange(A1:T706) first clear 
-	
-	*Re scale
-	replace me  = 100*me	
-	replace ksk  = 100*ksk
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("Country Annual Sales Growth") cellrange(A1:T706) first clear 
 	
 	*Gen numeric value of iso
 	egen iso_id = group(iso3)
 	
 	*Regression 
-	eststo bin_scatter2: reg ksk me i.year i.iso_id, vce(cl iso_id)
+	reg ksk me i.year i.iso_id, vce(cl iso_id)
 	
 	*Winsor some extreme growth values 
-	replace me = 30 if me > 30
-	replace me = -30 if me < -30
+	replace me = .30 if me > .30
+	replace me = -.30 if me < -.30
 	
 	*Generating the binscatter 
-	binscatter 	 ksk me,  nquantiles(50)  controls(i.year i.iso_id) ///
+	binscatter 	 ksk me,  nodraw nquantiles(70)  controls(i.year i.iso_id) ///
 		savedata("figs/sale_countries_1yr") replace
 	insheet using "figs/sale_countries_1yr.csv", clear names comma
 	erase "figs/sale_countries_1yr.csv"
 	erase "figs/sale_countries_1yr.do"
 	
 	*Saving Scatter
-	tw (scatter ksk me, mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+	tw (scatter ksk me, mcolor(navy) msize(vlarge) msymbol(O) mfcolor(navy*0.25)) ///
 	(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
-	xtitle("Average of Firm Sales Growth (%)",size(medlarge))  plotregion(lcolor(black)) ///
-	ytitle("Kelley Skewness of Firm Sales Growth (%)") ///
-	graphregion(color(white))  ylabel(-15(5)25) xlabel(,grid) ///
-	legend(off) graphregion(color(white))  	
-	cap: graph export "figs/SBC_Fig4B2.pdf", replace
+	xtitle("Average of Log Sales Growth",size(large))  plotregion(lcolor(black)) ///
+	ytitle("",size(large)) title("Log Sales Growth", color(black) size(vlarge)) ///
+	graphregion(color(white))  ylabel(-.1(.05).2, labsize(large)) xlabel(,grid labsize(large)) ///
+	legend(off) graphregion(color(white))  	name(FIGE4B, replace)
+	*cap: graph export "figs/SBC_Fig4B2.pdf", replace
 	
-	
+	*Combine 
+	graph combine FIGE4A FIGE4B , graphregion(color(white)) ///
+		  l1title("Kelley Skewness") ysize(3) 
+	cap: graph export "figs/SBC_4COMB.pdf", replace
+
 	
 	*NOTE: Figure 5A is based by Census data and the figure was generated inside 
 	*the RDC. No underlying data is provided. Here we only reproduce the plot reported 
 	*in the paper.
 	import excel using "replicationxls/SBC_CENSUS_LBD.xls", sheet("USA Employment Scatter") cellrange(A1:B51) first clear 
-	replace ksk = 100*ksk
-	replace me = 100*me
-	
-	*Regression 
-	eststo bin_scatter3: reg ksk me 
-	
+		
 	tw (scatter ksk me, mcolor(navy) msize(large) msymbol(O)  mfcolor(navy*0.25)) ///
    (lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
-	xtitle("Average of Employment Growth (%)") plotregion(lcolor(black)) ///
-	ytitle("Kelley Skewness of Employment Growth (%)") ///
-	graphregion(color(white)) ylabel(-20(10)30) xlabel(-8(4)12,grid) /// ///
+	xtitle("Average of Log Employment Growth") plotregion(lcolor(black)) ///
+	ytitle("Kelley Skewness of Log Employment Growth") ///
+	graphregion(color(white)) ylabel(-.20(.10).30) xlabel(-.08(0.04)0.12,grid) /// ///
 	legend(off order(1 "Expansion" 2 "Recession") rows(2) position(2) ring(0)) graphregion(color(white))  	
 	cap: graph export "figs/SBC_Fig5A.pdf", replace 		
 	
-	
 	*Replica Figure 5B
 	*Load 
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
 
 	*Clean
 	drop if year < 1970
@@ -680,21 +581,17 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	egen idnaics = group(group)
 	tsset idnaic year
 	
-	*Scale
-	replace me = 100*me
-	replace ksk = 100*ksk
-	
 	*Regression 
-	eststo bin_scatter4: reg ksk me i.year i.idnaic, vce(cl idnaic)
+	reg ksk me i.year i.idnaic, vce(cl idnaic)
 	
-	*Winsor Some Extreme Values (does not change the results )
+	*Winsor Some Extreme Values for better plot aspect (does not change the results)
 	drop if me == . | ksk == . 	
-	replace me = -20 if me <= -20
-	replace me =  20 if me >=  20 
-	replace ksk = 90 if  ksk > 90 
-	replace ksk = -90 if ksk < -90 
+	replace me = -.20 if me <= -.20
+	replace me =  .20 if me >=  .20 
+	replace ksk = .90 if  ksk > .90 
+	replace ksk = -.90 if ksk < -.90 
 		
-	binscatter ksk me,  nquantiles(50)  controls(i.year i.idnaics) ///
+	binscatter ksk me,  nquantiles(50) nodraw  controls(i.year i.idnaics) ///
 		savedata("figs/sales_annual")  replace
 	insheet using "figs/sales_annual.csv", clear names comma
 	erase "figs/sales_annual.csv"
@@ -703,34 +600,31 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	*Saving Scatter
 	tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
 	(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
-	xtitle("Average of Sales Growth (%)")  plotregion(lcolor(black)) ///
-	ytitle("Kelley Skewness of Sales Growth (%)") ///
+	xtitle("Average of Log Sales Growth")  plotregion(lcolor(black)) ///
+	ytitle("Kelley Skewness of Log Sales Growth") ///
 	graphregion(color(white))  ///
-	ylabel(-20(10)40) xlabel(-15(5)20,grid) ///
+	ylabel(-.20(.10).40) xlabel(-.15(0.05).20,grid) ///
 	legend(off) graphregion(color(white))  	
 	cap: graph export "figs/SBC_Fig5B.pdf", replace
 	
-	*This puts together the table of binscatters 
-	*Save table with results 
-	esttab bin_scatter* using  "figs/BINSCATTER_CORRS.tex", replace   ///
-	stats(r2 N, labels(R-squared "N. of Observations "))  star(* 0.1 ** 0.05 *** 0.01) se  	///
-	keep(me)
-	eststo clear
 
-*Replica Figure 6 on TFP and Appendix 13
-	
-	*Load 
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", ///
-		sheet("Amadeus TFP Shocks") cellrange(A1:AM1810) first clear 
+*Replica Figure 6 on TFP
+	*6A: Amadeus data 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", ///
+		sheet("Amadeus TFP Shocks") cellrange(A1:CM7420) first clear 
 
 	*Droping Outliers
 	egen isonum = group(iso3)
 		
+	keep if nobs1 > 100	
+		
 	foreach ii in 1 2 3 4{
-	_pctile ksk`ii', p(1 99)
-	replace ksk`ii' = . if (ksk`ii' < r(r1) | ksk`ii' > r(r2))
-	_pctile me`ii', p(1 99)
-	replace me`ii' = . if (me`ii' < r(r1) | me`ii' > r(r2))
+		_pctile ksk`ii', p(5 95)
+		replace ksk`ii' =  . if (ksk`ii' < r(r1))
+		replace ksk`ii' =  . if (ksk`ii' > r(r2))
+		_pctile me`ii', p(5 95)
+		replace me`ii' =  . if (me`ii' < r(r1))
+		replace me`ii' =  . if (me`ii' > r(r2))
 	}
 	reg ksk1 me1 i.year i.isonum i.nai 
 	local be : di %4.2f _b[me1]
@@ -738,29 +632,52 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	binscatter ksk1 me1, ///
 		control(i.year i.isonum i.nai ) n(80) nodraw  savedata("figs/bdv_tfps")  replace
 		
-		preserve 
-		insheet using "figs/bdv_tfps.csv", clear names comma
-		erase "figs/bdv_tfps.csv"	
-		erase "figs/bdv_tfps.do"	
-		tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
-		(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
-		xtitle("Average TFP Shock (%)",size(medlarge))  plotregion(lcolor(black)) ///
-		ytitle("Kelley Skewness of TFP Shocks (%)", color(black) size(medlarge))  ///
-		title("", color(blue) size(large)) ///
-		graphregion(color(white))  ///
-		ylabel(, labsize(medlarge)) xlabel(, labsize(medlarge)grid) ///
-		legend(off) graphregion(color(white))
-		cap: graph export "figs/SBC_Fig6.pdf", replace 
-		restore 
-		
+	insheet using "figs/bdv_tfps.csv", clear names comma
+	erase "figs/bdv_tfps.csv"	
+	erase "figs/bdv_tfps.do"	
 	
+	replace ksk = ksk/100
+	replace me = me/100
+	
+	tw (scatter ksk me if me > -0.05 & me <.05, mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+	(lfit ksk me if me > -0.05 & me <0.05,  lpattern(dash) lwidth(thick)) ,  ///						
+	xtitle("Average of TFP Shocks",size(medium))  plotregion(lcolor(black)) ///
+	ytitle("Kelley Skewness of TFP Shocks", color(black) size(medium))  ///
+	title("", color(blue) size(large)) ///
+	graphregion(color(white))  ///
+	 xlabel(, grid) ///
+	legend(off) graphregion(color(white)) xlabel(-0.05(0.025)0.05)
+	cap: graph export "figs/SBC_Fig6A.pdf", replace 
+	
+	*6B: Census Data. Binscatter plot generated in RDC; Underlying data not reported 
+	*here we only report the figure in the paper
+	import excel using "replicationxls/SBC_CENSUS_ASM.xls", ///
+		sheet("INDUSTRIES") cellrange(A1:C81) first clear
+		
+		replace ksk_rltfp_bea = ksk_rltfp_bea/100 
+		replace me_rltfp_bea = me_rltfp_bea/100
+		
+	tw (scatter  ksk_rltfp_bea me_rltfp_bea, mcolor(navy) msize(large) msymbol(O)  mfcolor(navy*0.25)) ///
+       (lfit  ksk_rltfp_bea me_rltfp_bea,  lpattern(dash) lwidth(thick)) ,  ///						
+	xtitle("Average of TFP Shocks", size(medium)) plotregion(lcolor(black)) ///
+	ytitle("Kelley Skewness of TFP Shocks", size(medium)) ///
+	graphregion(color(white)) ylabel(-0.15 "-.15" -0.1 "-.1" -0.05 "-.05" 0.0 "0" 0.05 ".05" 0.1 ".1",format(%9.2f)) ///
+		xlabel(-0.03 "-.03" -0.02 "-.02" -0.01 "-.01" 0.0 "0" 0.01 ".01" 0.02 ".02" 0.03 ".03", grid format(%9.2f)) /// ///
+	legend(off rows(2) position(2) ring(0)) graphregion(color(white))  	
+	cap: graph export "figs/SBC_Fig6B.pdf", replace 
+		
 
-*Replica Figure 7A to 7D
+*#######################################	
+*REPLICA APPENDIX FIGURES OF THE PAPER 
+*#######################################	
+
+*ROBUSTNESS CENSUS LBD
 	*Load
 	import excel using "replicationxls/SBC_CENSUS_LBD.xls", sheet("Firm Employment Growth Moments") cellrange(A1:I40) first clear 
 	keep if year>= 1978
 	keep year ksk
 	rename ksk kskLBD
+	replace kskLBD = kskLBD/100
 	save "replicationxls/aux.dta", replace
 	
 	import excel using "replicationxls/SBC_CENSUS_LBD.xls", sheet("Firm Employment Growth Kelley") cellrange(A1:C328) first clear 
@@ -781,9 +698,8 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	replace recession = 2/4 if year == 2009
 	
 	*Rescale
-	replace ksk = 100*ksk
 	
-	*Figure 6A
+	*Figure A
 	tw  (bar recession year, c(l) color(gray*0.5) yscale(off)) ///	
 	(connected   kskLBD year if group == "fage1", color(blue) lpattern(solid) ///
 		msymbol(O) mfcolor(blue*0.25) yaxis(2) yscale(alt axis(2))) ///
@@ -793,14 +709,14 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		msymbol(D) mfcolor(red*0.25) yaxis(2) ) ///
 	(connected  ksk year if group == "fsize3", color(green) lpattern(solid) ///
 		msymbol(T) mfcolor(green*0.25) yaxis(2) ), ///
-		ytitle("Kelley Skewness of Employment Growth (%)", size(medlarge) axis(2)) ylabel(-30(10)30,axis(2)) ///
+		ytitle("Kelley Skewness of log Employment Growth", size(medlarge) axis(2)) ylabel(-0.30(0.10)0.30,axis(2)) ///
 	 graphregion(color(white)) xtitle("") xlabel(1978(4)2014,grid)  plotregion(lcolor(black)) ///
 	legend(position(5) ring(0) rows(2) ///
 	order(2 "All" 3 "1-19" 4 "20-49" 5 "50-99") ///
-		region(lcolor(white))) graphregion(color(white))
-	cap noisily: graph export "figs/SBC_Fig6A.pdf", replace	
+		region(color(none))) graphregion(color(white))
+	cap noisily: graph export "figs/SBC_Fig11AA.pdf", replace	
 	
-	*Figure 6B
+	*Figure B
 	tw  (bar rec year, c(l) color(gray*0.5) yscale(off)) ///	
 	(connected   kskLBD year if group == "fage1", color(blue) lpattern(solid) ///
 		msymbol(O) mfcolor(blue*0.25) yaxis(2) yscale(alt axis(2))) ///
@@ -810,14 +726,14 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		msymbol(D) mfcolor(red*0.25) yaxis(2) ) ///
 	(connected  ksk year if group == "fsize6", color(green) lpattern(solid) ///
 		msymbol(T) mfcolor(green*0.25) yaxis(2) ), ///
-		ytitle("Kelley Skewness of Employment Growth (%)", size(medlarge) axis(2)) ylabel(-30(10)30,axis(2)) ///
+		ytitle("", size(medlarge) axis(2)) ylabel(-0.30(0.10)0.30,axis(2)) ///
 	 graphregion(color(white)) xtitle("") xlabel(1978(4)2014,grid)  plotregion(lcolor(black)) ///
 	legend(position(5) ring(0) rows(2) ///
 	order(2 "All" 3 "100-499" 4 "500-999" 5 "1000+") ///
-		region(lcolor(white))) graphregion(color(white))
-	cap noisily: graph export "figs/SBC_Fig6B.pdf", replace
+		region(color(none))) graphregion(color(white))
+	cap noisily: graph export "figs/SBC_Fig11AB.pdf", replace
 	
-	*Figure 6C
+	*Figure C
 	tw  (bar rec year, c(l) color(gray*0.5) yscale(off)) ///	
 	(connected   kskLBD year if group == "fage1", color(blue) lpattern(solid) ///
 		msymbol(O) mfcolor(blue*0.25) yaxis(2) yscale(alt axis(2))) ///
@@ -827,19 +743,19 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		msymbol(D) mfcolor(red*0.25)yaxis(2) ) ///
 	(connected  ksk year if group == "fage3", color(green) lpattern(solid) ///
 		msymbol(T) mfcolor(green*0.25) yaxis(2) ), ///
-		ytitle("Kelley Skewness of Employment Growth (%)", size(medlarge) axis(2)) ylabel(-30(10)30,axis(2)) ///
+		ytitle("Kelley Skewness of Log Employment Growth", size(medlarge) axis(2)) ylabel(-0.30(0.10)0.30,axis(2)) ///
 	 graphregion(color(white)) xtitle("") xlabel(1978(4)2014,grid)  plotregion(lcolor(black)) ///
 	legend(position(7) ring(0) rows(2) order(2 "All" 3 "Young" 4 "Middle" 5 "Mature") ///
-		region(lcolor(white))) graphregion(color(white))
-	cap noisily: graph export "figs/SBC_Fig6C.pdf", replace	
+		region(color(none))) graphregion(color(white))
+	cap noisily: graph export "figs/SBC_Fig11AC.pdf", replace	
 	
-	
-	*Figure 6D
+	*Figure D
 	*Load
 	import excel using "replicationxls/SBC_CENSUS_LBD.xls", sheet("Firm Employment Growth Moments") cellrange(A1:I40) first clear 
 	keep if year>= 1978
 	keep year ksk
 	rename ksk kskLBD
+	replace kskLBD = kskLBD/100
 	save "aux.dta", replace
 	
 	import excel using "replicationxls/SBC_CENSUS_LBD.xls", sheet("Estab. Employment Growth Kelley") cellrange(A1:C367) first clear 
@@ -860,25 +776,27 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	replace recession = 1 if year == 2008
 	replace recession = 2/4 if year == 2009
 	
-	*Rescale
-	replace ksk = 100*ksk
-	
+
 	*Plot
 	tw  (bar rec year, c(l) color(gray*0.5) yscale(off)) ///	
 	(connected   kskLBD year if group == "all", color(blue) lpattern(solid) ///
 		msymbol(O) mfcolor(blue*0.25) yaxis(2) yscale(alt axis(2))) ///
 	(connected  ksk year if group == "all", color(black) lpattern(solid) ///
 		msymbol(S) mfcolor(black*0.25) yaxis(2) ), ///
-		ytitle("Kelley Skewness of Employment Growth (%)", size(medlarge) axis(2)) ylabel(-30(10)20,axis(2)) ///
+		ytitle("", size(medlarge) axis(2)) ylabel(-.30(.10).20,axis(2)) ///
 	 graphregion(color(white)) xtitle("") xlabel(1978(4)2014,grid)  plotregion(lcolor(black)) ///
 	legend(position(7) ring(0) rows(2) ///
 	order(2 "All Firms" 3 "All Establishments") ///
 		region(lcolor(white))) graphregion(color(white))
-	cap noisily: graph export "figs/SBC_Fig6D.pdf", replace
+	cap noisily: graph export "figs/SBC_Fig11AD.pdf", replace
 
 	*Load
 	import excel using "replicationxls/SBC_CENSUS_LBD.xls", sheet("Firm Employment Growth Moments") cellrange(A1:K40) first clear 
 	keep if year >=1978
+	replace ksk = ksk/100
+	replace kskAC = kskAC/100
+	replace ksk2 = ksk2/100 
+	replace ksk3 = ksk3/100
 	
 	*Recession variable 
 	gen recession = 0
@@ -892,31 +810,30 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	replace recession = 1 if year == 2008
 	replace recession = 2/4 if year == 2009
 	
-	*Figure 7A
-	tw  (bar rec year, c(l) color(gray*0.5) yscale(off)) ///	
-	(connected  ksk ksk2 ksk3 year  , color(blue black red) mfcolor(blue*0.25 black*0.25 red*0.25) lpattern(solid solid solid) msymbol(O S D) ///
-		 yaxis(2) yscale(alt axis(2)) ///
-	ytitle("Kelley Skewness of Employment Growth (%)", size(medlarge) axis(2)) ylabel(,axis(2))) , ///
-	 graphregion(color(white)) xtitle("") ytitle("P90-P10", axis(1)) xlabel(1978(4)2014,grid)  plotregion(lcolor(black)) ///
-	legend( position(7) ring(0) rows(3) ///
-	order(2 "KSK (P90,P10)" 3 "KSK (P95,P5)"  4 "KSK (P97.5,P2.5)") region(lcolor(white))) graphregion(color(white)) 
-	cap noisily: graph export "figs/SBC_Fig6E.pdf", replace	
-
-	*Figure 7B
+	*Figure E
 	tw  (bar rec year, c(l) color(gray*0.5) yscale(off)) ///	
 		(connected ksk kskAC year, color(blue black) mfcolor(blue*0.25 black*0.25) lpattern(solid solid) msymbol(O S) ///
 			 yaxis(2) yscale(alt axis(2)) ///
-		ytitle("Kelley Skewness of Employment Growth (%)", size(medlarge)  axis(2)) ylabel(,axis(2))) , ///
+		ytitle("Kelley Skewness of Log Employment Growth", size(medlarge)  axis(2)) ylabel(,axis(2))) , ///
 		 graphregion(color(white)) xtitle("") ytitle("P90-P10", axis(1)) xlabel(1978(4)2014, grid)  plotregion(lcolor(black)) ///
 		legend( rows(3)  ring(0) position(7) region(lcolor(white)) ///
 	order(2 "KSK of Log-change" 3 "KSK of Arc-percentage change"))	
-		cap noisily: graph export "figs/SBC_Fig6F.pdf", replace	
+		cap noisily: graph export "figs/SBC_Fig11AE.pdf", replace	
+	
+	*Figure F
+	tw  (bar rec year, c(l) color(gray*0.5) yscale(off)) ///	
+	(connected  ksk ksk2 ksk3 year  , color(blue black red) mfcolor(blue*0.25 black*0.25 red*0.25) lpattern(solid solid solid) msymbol(O S D) ///
+		 yaxis(2) yscale(alt axis(2)) ///
+	ytitle("", size(medlarge) axis(2)) ylabel(,axis(2))) , ///
+	 graphregion(color(white)) xtitle("") ytitle("P90-P10", axis(1)) xlabel(1978(4)2014,grid)  plotregion(lcolor(black)) ///
+	legend( position(7) ring(0) rows(3) ///
+	order(2 "KSK (P90,P10)" 3 "KSK (P95,P5)"  4 "KSK (P97.5,P2.5)") region(lcolor(white))) graphregion(color(white)) 
+	cap noisily: graph export "figs/SBC_Fig11AF.pdf", replace	
 
-
-*Replica Appendix Figures 11.1 and 11.2 on Quarterly Sales Growth 
+*ROBUSTNESS QUARTERLY SALES GROWTH
 
 	   *Load data of sales growth 
-		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Quarter Sales Growth") cellrange(A1:U4325) first clear 
+		import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Quarter Sales Growth") cellrange(A1:U4325) first clear 
 		
 		keep if inlist(group,"all")
 		
@@ -943,9 +860,6 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		replace recession = 1 if year == 2008
 		replace recession = 1 if inlist(qtr,"2009q1","2009q2")
 		
-		replace ksk = 100*ksk
-		replace p9050 = 100*p9050
-		replace p5010 = 100*p5010
 		 
 		split(qtr), p(q)
 		destring qtr1 qtr2, replace 
@@ -957,8 +871,9 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		
 	tw  (bar recession qtr,   c(l) color(gs12 ) yscale(off)) ///	
 	(line ksk qtr , color(black) yaxis(2) yscale(alt axis(2)) ///
-	ytitle("Kelley Skewness of Sales Growth (%)", axis(2)) ylabel(-30(10)30,axis(2))) , ///
-	 graphregion(color(white)) xtitle("") ytitle("P90-P10", axis(1)) xlabel(40(20)210)  plotregion(lcolor(black)) ///
+	ytitle("Kelley Skewness of Log Sales Growth", axis(2)) ///
+	ylabel(-.30 "-.3" -0.2  "-.2" -0.1  "-.1" 0  "0" 0.1 ".1" 0.2 ".2" 0.3 ".3",axis(2))) , ///
+	 graphregion(color(white)) xtitle("") xlabel(40(20)210)  plotregion(lcolor(black)) ///
 	legend(size(small) off rows(1) order(1 "GDP growth" 2 "1 year" 3 "3 year" 4 "5 year") ///
 	region(lcolor(white))) graphregion(color(white)) 
 		cap noisily: graph export "figs/SBC_11A.pdf", replace	
@@ -967,81 +882,126 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	tw  (bar rece qtr,   c(l) color(gs12 ) yscale(off)) ///	
 	(line p9050 p5010 qtr, ///
 	color( blue black ) lpattern(longdash solid) yaxis(2) yscale(alt axis(2)) ///
-	ytitle("P9050 and P5010 of Sales Growth (%)", axis(2)) ylabel(10(10)50,axis(2))) , ///
-	 graphregion(color(white)) xtitle("") ytitle("P90-P10", axis(1)) xlabel(40(20)210)  plotregion(lcolor(black)) ///
-	legend(ring(0) position(11) rows(2) order(2 "P90-P50" 3 "P50-P10") region(lcolor(white))) graphregion(color(white)) 
-		cap noisily: graph export "figs/SBC_11B.pdf", replace	
+	ytitle("P9050 and P5010 of Log Sales Growth", axis(2)) ylabel(.10 ".1" 0.2 ".2" 0.3 ".3" 0.4 ".4" .5 ".5",axis(2))) , ///
+	 graphregion(color(white)) xtitle("")  xlabel(40(20)210)  plotregion(lcolor(black)) ///
+	legend(ring(0) position(11) rows(2) order(2 "P90P50" 3 "P50P10") region(lcolor(white))) graphregion(color(white)) 
+	cap noisily: graph export "figs/SBC_11B.pdf", replace	
 	
 			
-*Replica Appendix figures A.2a, A.2b (Called Figure 12)
-
+*ROBUSTNESS SALES GROWTH AND EMPLOYMENT GROWTH IN AMADEUS
 	*Load for Employment
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Amadeus Employment Growth") cellrange(A1:U236) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("Amadeus Employment Growth") cellrange(A1:U239) first clear 
 	
 	*Winsorize (only for better plot; Does not change results)
-	replace  me = -0.5 if  me <-0.5		
-	replace  ksk = -0.5 if ksk <-0.5	
-	
-	*Scale
-	replace me = 100*me
-	replace ksk = 100*ksk
+	replace ksk = . if me > 0.2 | me <-0.2	
+	replace ksk = . if ksk > 0.5 | ksk <-0.5
+
 	
 	*Gen id 
 	egen idiso = group(iso3)
 
 	
-	binscatter ksk me,  nquantiles(50)  controls(i.year i.idiso) ///
+	binscatter ksk me,  nquantiles(80) nodraw controls(i.year i.idiso) ///
 		savedata("figs/sales_annual")  replace
 	insheet using "figs/sales_annual.csv", clear names comma
 	erase "figs/sales_annual.csv"
 	erase "figs/sales_annual.do"
 		
 	*Saving Scatter
-	tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
-	(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
-	xtitle("Average of Employment Growth (%)")  plotregion(lcolor(black)) ///
-	ytitle("Kelley Skewness of Employment Growth (%)") ///
+	tw (scatter ksk me if me >= -.20 , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+	(lfit ksk me if me >= -.20,  lpattern(dash) lwidth(thick)) ,  ///						
+	xtitle("Average of Log Employment Growth")  plotregion(lcolor(black)) ///
+	ytitle("Kelley Skewness of Log Employment Growth") ///
 	graphregion(color(white))  ///
-	ylabel(-50(10)40) xlabel(-40(10)10,grid) ///
+	ylabel(-.40(.10).20) xlabel(,grid) ///
 	legend(off) graphregion(color(white))  	
 	cap noisily: graph export "figs/SBC_Fig12A.pdf", replace
 	
 
-	*Load for sales
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Amadeus Sales Growth") cellrange(A1:U246) first clear 
+	*Load for Sales
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("Amadeus Sales Growth") cellrange(A1:U246) first clear 
 	
-	*Winsorize (only for better plot; Does not change results)
-	replace  me = -0.5 if  me <-0.5		
-	replace  ksk = -0.5 if ksk <-0.5	
-	
-	*Scale
-	replace me = 100*me
-	replace ksk = 100*ksk
+	*Winsorize (Does not change results)
+	replace ksk = . if me > 0.2 | me <-0.2	
+	replace ksk = . if ksk > 0.5 | ksk <-0.5	
 	
 	*Gen id 
 	egen idiso = group(iso3)
 
 	
-	binscatter ksk me,  nquantiles(50)  controls(i.year i.idiso) ///
+	binscatter ksk me,  nquantiles(80) nodraw  controls(i.year i.idiso) ///
 		savedata("figs/sales_annual")  replace
 	insheet using "figs/sales_annual.csv", clear names comma
 	erase "figs/sales_annual.csv"
 	erase "figs/sales_annual.do"
 		
 	*Saving Scatter
-	tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
-	(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
-	xtitle("Average of Sales Growth (%)")  plotregion(lcolor(black)) ///
-	ytitle("Kelley Skewness of Sales Growth (%)") ///
+	tw (scatter ksk me if me >= -.30 , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+	(lfit ksk me if me >= -.30 ,  lpattern(dash) lwidth(thick)) ,  ///						
+	xtitle("Average of Log Sales Growth")  plotregion(lcolor(black)) ///
+	ytitle("Kelley Skewness of Log Sales Growth") ///
 	graphregion(color(white))  ///
-	ylabel(-50(10)10) xlabel(-50(10)20,grid) ///
+	ylabel(-.40(.10).10) xlabel(,grid) ///
 	legend(off) graphregion(color(white))  	
 	cap noisily: graph export "figs/SBC_Fig12B.pdf", replace
 	
+*ROBUSTNESS: LEFT AND RIGHT TAIL OF DISPERSION 
+	
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", ///
+		sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
 
-*Replica figures A.3a and A.3b
+	*Clean
+	drop if year < 1970
+	drop if inlist(group,"naic99","all")
+	egen idnaics = group(group)
+	tsset idnaic year
+	
+	*Gen numeric value of iso
+	egen iso_id = group(idnaic)
+	
+	preserve 
+		winsor2 p5010 me, cuts(1 99)  replace
+		binscatter 	p5010 me, nodraw nquantiles(80)  controls(i.year i.iso_id) ///
+			savedata("figs/sale_naics_1yr") replace
+		insheet using "figs/sale_naics_1yr.csv", clear names comma
+		erase "figs/sale_naics_1yr.csv"
+		gen vari = "p5010"
+ 		save "figs/sale_naics_1yr_p5010.dta", replace
+		erase "figs/sale_naics_1yr.do"
+		
+		*Saving Scatter
+		tw (scatter p5010 me, mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+		(lowess p5010 me,  bwidth(1.0) lpattern(dash) lwidth(thick)) ,  ///						
+		xtitle("Average of Log Sales Growth",size(medlarge))  plotregion(lcolor(black)) ///
+		ytitle("P5010 of Log Sales Growth") ///
+		graphregion(color(white))  xlabel(,grid) ///
+		legend(off) graphregion(color(white))  	
+		graph export "figs/SBC_Fig20B_UN.pdf", replace
+	restore 
+	
+	preserve 
+		winsor2 p9050 me, cuts(1 99)  replace
+		binscatter 	p9050 me, nodraw nquantiles(100)  controls(i.year i.iso_id) ///
+			savedata("figs/sale_naics_1yr") replace
+		insheet using "figs/sale_naics_1yr.csv", clear names comma
+		erase "figs/sale_naics_1yr.csv"
+		gen vari = "p9050"
+ 		save "figs/sale_naics_1yr_p9050.dta", replace
+		erase "figs/sale_naics_1yr.do"
+		
+		*Saving Scatter
+		tw (scatter p9050 me, mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+		(lowess p9050 me,  bwidth(0.5) lpattern(dash) lwidth(thick)) ,  ///						
+		xtitle("Average of Log Sales Growth",size(medlarge))  plotregion(lcolor(black)) ///
+		ytitle("P9050 of Log Sales Growth") ylabel(0.1(0.1)0.6) ///
+		graphregion(color(white)) xlabel(,grid) ///
+		legend(off) graphregion(color(white))  	
+		graph export "figs/SBC_Fig20A_UN.pdf", replace
+	restore 
+
+*ROBUSTNESS: WITHIN INDUSTRY REGRESSIONS
 	*Load for Employment
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", ///
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", ///
 		sheet("USA Annual Employment Growth") cellrange(A1:V1097) first clear 
 
 	*Clean
@@ -1104,7 +1064,7 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 
 	 
 	*Load for Sales
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
 
 	*Clean
 	drop if year < 1970
@@ -1132,7 +1092,6 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 		local b`vv' = _b[me]
 		local cil`vv'= _b[me] - invttail( e(N)-e(df_m)-1,0.025) * _se[me]
 		local ciu`vv'= _b[me] + invttail( e(N)-e(df_m)-1,0.025) * _se[me]
-		
 	}
 	
 	clear 
@@ -1158,310 +1117,233 @@ cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData/"
 	 yline(13.24, lcolor(black) lpattern(dash)) ///
 	 text(25 5 "Kelley{subscript:j,t} = {&alpha} + {&beta}Me{subscript:j,t} + {&epsilon}{subscript:j,t}", ///
 		 size(medlarge)) 
-	cap noisily: graph export "figs/SBC_Fig13B.pdf", replace
-
-*Replica Appendix figures A.4a, A.4b, A.4c (Called Figure 13)
-
-	*Load the data
-	import excel using "replicationxls/SBC_CENSUS_LBD.xls", sheet("Estab. Employment Growth Kelley") cellrange(A1:C367) first clear 
-	
-	*Recession variable 
-	gen recession = 0
-	replace recession = 3/4 if year == 1980
-	replace recession = 1/2 if year == 1981
-	replace recession = 1 if year == 1982
-	replace recession = 2/4 if year == 1990
-	replace recession = 1/4 if year == 1991
-	replace recession = 1 if year == 2001
-	replace recession = 1/4 if year == 2007
-	replace recession = 1 if year == 2008
-	replace recession = 2/4 if year == 2009
-	
-	*Rescale
-	replace ksk = 100*ksk
-	
-	*Figure 14A
-	tw  (bar recession year, c(l) color(gray*0.5) yscale(off)) ///	
-	(connected   ksk year if group == "all", color(blue) lpattern(solid) ///
-		msymbol(O) mfcolor(blue*0.25) yaxis(2) yscale(alt axis(2))) ///
-	(connected  ksk year if group == "esize1", color(black) lpattern(solid) ///
-		msymbol(S) mfcolor(black*0.25) yaxis(2) ) ///
-	(connected  ksk year if group == "esize2", color(red) lpattern(solid) ///
-		msymbol(D) mfcolor(red*0.25) yaxis(2) ) ///
-	(connected  ksk year if group == "esize3", color(green) lpattern(solid) ///
-		msymbol(T) mfcolor(green*0.25) yaxis(2) ), ///
-		ytitle("Kelley Skewness of Employment Growth (%)", axis(2)) ylabel(-30(10)30,axis(2)) ///
-	 graphregion(color(white)) xtitle("") xlabel(1978(4)2014,grid)  plotregion(lcolor(black)) ///
-	legend(position(7) ring(0) rows(2) ///
-	order(2 "All" 3 "1-19" 4 "20-49" 5 "50-99") ///
-		region(lcolor(white))) graphregion(color(white))
-	cap noisily: graph export "figs/SBC_Fig14A.pdf", replace
+	cap noisily: graph export "figs/SBC_Fig13B.pdf", replace	
 	
 	
-	*Figure 14B
-	tw  (bar rec year, c(l) color(gray*0.5) yscale(off)) ///	
-	(connected   ksk year if group == "all", color(blue) lpattern(solid) ///
-		msymbol(O) mfcolor(blue*0.25) yaxis(2) yscale(alt axis(2))) ///
-	(connected  ksk year if group == "esize4", color(black) lpattern(solid) ///
-		msymbol(S) mfcolor(black*0.25) yaxis(2) ) ///
-	(connected  ksk year if group == "esize5", color(red) lpattern(solid) ///
-		msymbol(D) mfcolor(red*0.25) yaxis(2) ) ///
-	(connected  ksk year if group == "esize6", color(green) lpattern(solid) ///
-		msymbol(T) mfcolor(green*0.25) yaxis(2) ), ///
-		ytitle("Kelley Skewness of Employment Growth (%)", axis(2)) ylabel(-30(10)30,axis(2)) ///
-	 graphregion(color(white)) xtitle("") xlabel(1978(4)2014,grid)  plotregion(lcolor(black)) ///
-	legend(position(11) ring(0) rows(2) ///
-	order(2 "All" 3 "100-499" 4 "500-999" 5 "1000+") ///
-		region(lcolor(white))) graphregion(color(white))
-	cap noisily: graph export "figs/SBC_Fig14B.pdf", replace
-	
-	*Figure 14C
-	tw  (bar rec year, c(l) color(gray*0.5) yscale(off)) ///	
-	(connected   ksk year if group == "all", color(blue) lpattern(solid) ///
-		msymbol(O) mfcolor(blue*0.25) yaxis(2) yscale(alt axis(2))) ///
-	(connected  ksk year if group == "eage1", color(black) lpattern(solid) ///
-		msymbol(S) mfcolor(black*0.25) yaxis(2) ) ///
-	(connected  ksk year if group == "eage2", color(red) lpattern(solid) ///
-		msymbol(D) mfcolor(red*0.25)yaxis(2) ) ///
-	(connected  ksk year if group == "eage3", color(green) lpattern(solid) ///
-		msymbol(T) mfcolor(green*0.25) yaxis(2) ), ///
-		ytitle("Kelley Skewness of Employment Growth (%)", axis(2)) ylabel(-30(10)30,axis(2)) ///
-	 graphregion(color(white)) xtitle("") xlabel(1978(4)2014,grid)  plotregion(lcolor(black)) ///
-	legend(position(7) ring(0) rows(2) order(2 "All" 3 "Young" 4 "Middle" 5 "Mature") ///
-		region(lcolor(white))) graphregion(color(white))
-	cap noisily: graph export "figs/SBC_Fig14C.pdf", replace
-	
-*Appendix Figure: US Shares of Right and Left Tail Dispersion
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", ///
-		sheet("USA Annual Sales Growth") cellrange(A1:V1097) first clear 
-
-	*Clean
-	drop if year < 1970
-	drop if inlist(group,"naic99","all")
-	egen idnaics = group(group)
-	tsset idnaic year
-	
-	*Gen shares 
-	gen p9050s = 100*p9050/p9010 
-	gen p5010s = 100*p5010/p9010
-	
-	*Rescale
-	replace me = 100*me
-	
-	*Gen numeric value of iso
-	egen iso_id = group(idnaic)
-	
-	*Generating the binscatters
-	preserve 
-		binscatter 	p9050s me,  nquantiles(50)  controls(i.year i.iso_id) ///
-			savedata("figs/sale_naics_1yr") replace
-		insheet using "figs/sale_naics_1yr.csv", clear names comma
-		erase "figs/sale_naics_1yr.csv"
-		erase "figs/sale_naics_1yr.do"
-		
-		*Saving Scatter
-		tw (scatter p9050s me, mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
-		(lfit p9050s me,  lpattern(dash) lwidth(thick)) ,  ///						
-		xtitle("Average of Firm Sales Growth (%)",size(medlarge))  plotregion(lcolor(black)) ///
-		ytitle("Ratio of P90-P50 to P90-P10 (%)") ///
-		graphregion(color(white))  ylabel(30(10)70) xlabel(,grid) ///
-		legend(off) graphregion(color(white))  	
-		graph export "figs/SBC_Fig20A.pdf", replace
-	restore 
-	
-	preserve 
-		binscatter 	p5010s me,  nquantiles(50)  controls(i.year i.iso_id) ///
-			savedata("figs/sale_naics_1yr") replace
-		insheet using "figs/sale_naics_1yr.csv", clear names comma
-		erase "figs/sale_naics_1yr.csv"
-		erase "figs/sale_naics_1yr.do"
-		
-		*Saving Scatter
-		tw (scatter p5010s me, mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
-		(lfit p5010s me,  lpattern(dash) lwidth(thick)) ,  ///						
-		xtitle("Average of Firm Sales Growth (%)",size(medlarge))  plotregion(lcolor(black)) ///
-		ytitle("Ratio of P50-P10 to P90-P10 (%)") ///
-		graphregion(color(white)) ylabel(30(10)70) xlabel(,grid) ///
-		legend(off) graphregion(color(white))  	
-		graph export "figs/SBC_Fig20B.pdf", replace
-	restore 
+	twoway (rcap cil ciu indx, color(maroon)) ///
+		(scatter b indx,  mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25))  ,  ///						
+	xtitle("")  plotregion(lcolor(black)) ///
+	ytitle("Value of {&beta} and 95% Confidence Intervals", size(medium)) legend(off) ///
+	graphregion(color(white))  xlabel(1 "Mini" 2 "Man1" 3 "Info" 4 "Man2" 5 "Man3" ///
+	6 "ASer" 7 "Prof" 8 "ReTr1" 9 "FinI" 10 "AdmW" 11 "Arts" 12 "WhTr" 13 "FiIn" ///
+	14 "ReTr2" 15 "WhTr" 16 "ESer" 17 "Oser" 18 "Tran1" 19 "Util" 20 "ReEs" 21 "Agro" 22 "Tran2", grid angle(90) alternate labsize(small)) ///
+	 yline(13.24, lcolor(black) lpattern(dash)) ///
+	 text(35 7 "Kelley{subscript:j,t} = {&alpha} + {&beta}Me{subscript:j,t} + {&epsilon}{subscript:j,t}", ///
+		 size(medium)) text(17 3 "Average")
+	cap noisily: graph export "figs/SBC_Fig13BB.pdf", replace
 	
 	
-*Appendix: Replica Figure TFP and Regressions Tables for TFP measures
-
-*Load  data
+*ROBUSTNESS: REGRESSION TABLE WITH DIFFERENT TFP MEASURES
+	
+	*.Cross Country
+	*Load  data
 	set more off
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", ///
-		sheet("Amadeus TFP Shocks") cellrange(A1:AM1810) first clear 
-
+	eststo clear
+	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRYDEC2019.xls", ///
+		sheet("Amadeus TFP Shocks") cellrange(A1:CW7420) first clear 
+	
+	drop if nobs1== 0 &  nobs2== 0 &  nobs3== 0 ///
+		&  nobs4== 0 &  nobs5== 0 &  nobs6== 0				// Drop if number of observation is 0
+	
 	*Droping Outliers
 	egen isonum = group(iso3)
-		
+	keep if nobs2 >100									// Keep if moments were calculated using more than 100 observations	
 	foreach ii in 1 2 3 4{
-	_pctile ksk`ii', p(1 99)
-	replace ksk`ii' = . if (ksk`ii' < r(r1) | ksk`ii' > r(r2))
-	_pctile me`ii', p(1 99)
-	replace me`ii' = . if (me`ii' < r(r1) | me`ii' > r(r2))
+		_pctile ksk`ii', p(5 95)
+		replace ksk`ii' =  r(r1) if (ksk`ii' < r(r1))
+		replace ksk`ii' =  r(r2) if (ksk`ii' > r(r2))
+		_pctile me`ii', p(5 95)
+		replace me`ii' =  r(r1) if (me`ii' < r(r1))
+		replace me`ii' =  r(r2) if (me`ii' > r(r2))
 	}
-		
-	reg ksk2 me2 i.year i.isonum i.nai 
-	local be : di %4.2f _b[me2]
-	local se : di %4.2f _se[me2]
-	binscatter ksk2 me2, ///
+	
+	
+	preserve 	
+		reg ksk1 me1 i.year i.isonum i.nai 
+		local be : di %4.2f _b[me1]
+		local se : di %4.2f _se[me1]
+		binscatter ksk1 me1, ///
 		control(i.year i.isonum i.nai ) n(80) nodraw  savedata("figs/bdv_tfps")  replace
-	preserve 
+		
+		*This is for the regression table
+		egen isoxnai = group(isonum nai)
+		tsset isoxnai year
+		gen aux = megs
+		drop megs 
+		rename aux megs
+		
+		levelsof isonum, local(isos)
+		foreach ii of local isos{
+			sum megs if isonum == `ii' 
+			replace megs = megs/r(sd) if isonum == `ii'
+		}
+		eststo ksktfp1:  reg ksk1 megs i.year i.isonum i.nai, vce(cl isonum)
+		
 		insheet using "figs/bdv_tfps.csv", clear names comma
 		erase "figs/bdv_tfps.csv"	
 		erase "figs/bdv_tfps.do"	
+		replace ksk = ksk/100
+		replace me = me/100
 			tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
 			(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
-			xtitle("Average TFP Shock (%)",size(medlarge))  plotregion(lcolor(black)) ///
-			ytitle("Kelley Skewness of TFP Shocks (%)", color(black) size(medlarge))  ///
+			xtitle("Average TFP Shocks",size(medlarge))  plotregion(lcolor(black)) ///
+			ytitle("Kelley Skewness of TFP Shocks", color(black) size(medlarge))  ///
 			title("", color(blue) size(large)) ///
 			graphregion(color(white))  ///
-			ylabel(, labsize(medlarge)) xlabel(-4(2)4, labsize(medlarge)grid) ///
+			ylabel(, labsize(medlarge)) xlabel(, labsize(medlarge)grid) ///
 			legend(off) graphregion(color(white))
 			graph export "figs/SBC_Fig21A.pdf", replace 
 	restore 
 	
-	reg ksk3 me3 i.year i.isonum i.nai 
-	local be : di %4.2f _b[me3]
-	local se : di %4.2f _se[me3]
-	binscatter ksk3 me3  if nobs >=100 & me3 >-10 & me3 < 10, ///
+		
+	preserve 
+		reg ksk2 me2 i.year i.isonum i.nai 
+		local be : di %4.2f _b[me2]
+		local se : di %4.2f _se[me2]
+		binscatter ksk2 me2, ///
 		control(i.year i.isonum i.nai ) n(80) nodraw  savedata("figs/bdv_tfps")  replace
-	
-	preserve 
-		insheet using "figs/bdv_tfps.csv", clear names comma
-		erase "figs/bdv_tfps.csv"	
-		erase "figs/bdv_tfps.do"	
-			tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
-			(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
-			xtitle("Average TFP Shock (%)",size(medlarge))  plotregion(lcolor(black)) ///
-			ytitle("Kelley Skewness of TFP Shocks (%)", color(black) size(medlarge))  ///
-			title("", color(blue) size(large)) ///
-			graphregion(color(white))  ///
-			ylabel(, labsize(medlarge)) xlabel(-4(2)4, labsize(medlarge)grid) ///
-			legend(off) graphregion(color(white))
-			cap: graph export "figs/SBC_Fig21B.pdf", replace 
-	restore 
-	
-	reg ksk4 me4 i.year i.isonum i.nai 
-	local be : di %4.2f _b[me4]
-	local se : di %4.2f _se[me4]
-	binscatter ksk4 me4  if nobs >=100 & me3 >-10 & me3 < 10, ///
-		control(i.year i.isonum i.nai ) n(80) savedata("figs/bdv_tfps") nodraw  replace
-	
-	preserve 
-		insheet using "figs/bdv_tfps.csv", clear names comma
-		erase "figs/bdv_tfps.csv"	
-		erase "figs/bdv_tfps.do"	
-			tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
-			(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
-			xtitle("Average TFP Shock (%)",size(medlarge))  plotregion(lcolor(black)) ///
-			ytitle("Kelley Skewness of TFP Shocks (%)", color(black) size(medlarge))  ///
-			title("", color(blue) size(large)) ///
-			graphregion(color(white))  ///
-			ylabel(, labsize(medlarge)) xlabel(-6(2)6, labsize(medlarge)grid) ///
-			legend(off) graphregion(color(white))
-			cap: graph export "figs/SBC_Fig21C.pdf", replace 
-	restore 
-	
-	*Regressions using Growth Rate of Sales
-	set more off
-	eststo clear
-	eststo sk_model1: reg ksk1 meg i.year i.isonum i.nai, vce(cl isonum)
-	eststo sk_model2: reg ksk2 meg i.year i.isonum i.nai, vce(cl isonum)
-	eststo sk_model3: reg ksk3 meg i.year i.isonum i.nai, vce(cl isonum) 
-	eststo sk_model4: reg ksk4 meg i.year i.isonum i.nai, vce(cl isonum) 
-	
-	*Save table with results 
-	esttab sk_model* using  "figs_slide/TABLE_TFP_KSK.tex", replace   ///
-	stats(r2 N, labels(R-squared "N. of Observations "))  star(* 0.1 ** 0.05 *** 0.01) se  	///
-	keep(meg)
-	eststo clear
+		
+		
+		*This is for the regression table
+		egen isoxnai = group(isonum nai)
+		tsset isoxnai year
+		gen aux = megs
+		drop megs 
+		rename aux megs
+		
+		levelsof isonum, local(isos)
+		foreach ii of local isos{
+				sum megs if isonum == `ii'
+				replace megs = megs/r(sd) if isonum == `ii'
 
+		}
+		eststo ksktfp2:  reg ksk2 megs i.year i.isonum i.nai, vce(cl isonum)
+		
+		insheet using "figs/bdv_tfps.csv", clear names comma
+		erase "figs/bdv_tfps.csv"	
+		erase "figs/bdv_tfps.do"	
+		replace ksk = ksk/100
+		replace me = me/100
+			tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+			(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
+			xtitle("Average TFP Shocks",size(medlarge))  plotregion(lcolor(black)) ///
+			ytitle("Kelley Skewness of TFP Shocks", color(black) size(medlarge))  ///
+			title("", color(blue) size(large)) ///
+			graphregion(color(white))  ///
+			ylabel(, labsize(medlarge)) xlabel(-.08(0.04)0.08, labsize(medlarge)grid) ///
+			legend(off) graphregion(color(white))
+			graph export "figs/SBC_Fig21B.pdf", replace 
+	restore 
+	
+	
+	
+	preserve 
+		reg ksk3 me3 i.year i.isonum i.nai 
+		local be : di %4.2f _b[me3]
+		local se : di %4.2f _se[me3]
+		binscatter ksk3 me3, ///
+		control(i.year i.isonum i.nai ) n(80) nodraw  savedata("figs/bdv_tfps")  replace
+		
+		
+		*This is for the regression table
+		egen isoxnai = group(isonum nai)
+		tsset isoxnai year
+		gen aux = megs
+		drop megs 
+		rename aux megs
+		
+		levelsof isonum, local(isos)
+		foreach ii of local isos{
+			sum megs if isonum == `ii'
+			replace megs = megs/r(sd) if isonum == `ii'
+		}
+		eststo ksktfp3:  reg ksk3 megs i.year i.isonum i.nai, vce(cl isonum)
+		
+		insheet using "figs/bdv_tfps.csv", clear names comma
+		erase "figs/bdv_tfps.csv"	
+		erase "figs/bdv_tfps.do"	
+		replace ksk = ksk/100
+		replace me = me/100
+			tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+			(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
+			xtitle("Average TFP Shocks",size(medlarge))  plotregion(lcolor(black)) ///
+			ytitle("Kelley Skewness of TFP Shocks", color(black) size(medlarge))  ///
+			title("", color(blue) size(large)) ///
+			graphregion(color(white))  ///
+			ylabel(, labsize(medlarge)) xlabel(-0.08(0.04)0.08, labsize(medlarge)grid) ///
+			legend(off) graphregion(color(white))
+			graph export "figs/SBC_Fig21C.pdf", replace 
+	restore 
+		
+	preserve 
+	
+		reg ksk4 me4 i.year i.isonum i.nai 
+		local be : di %4.2f _b[me4]
+		local se : di %4.2f _se[me4]
+		binscatter ksk4 me4, ///
+		control(i.year i.isonum i.nai ) n(80) nodraw  savedata("figs/bdv_tfps")  replace
+			
+		*This is for the regression table
+		egen isoxnai = group(isonum nai)
+		tsset isoxnai year
+		gen aux = megs
+		drop megs 
+		rename aux megs
+		
+		levelsof isonum, local(isos)
+		foreach ii of local isos{
+			sum megs if isonum == `ii' 
+			replace megs = megs/r(sd) if isonum == `ii'
+		}
+		eststo ksktfp4:  reg ksk4 megs i.year i.isonum i.nai, vce(cl isonum)
+		
+		insheet using "figs/bdv_tfps.csv", clear names comma
+		erase "figs/bdv_tfps.csv"	
+		erase "figs/bdv_tfps.do"	
+		replace ksk = ksk/100
+		replace me = me/100
+			tw (scatter ksk me , mcolor(navy) msize(large) msymbol(O) mfcolor(navy*0.25)) ///
+			(lfit ksk me,  lpattern(dash) lwidth(thick)) ,  ///						
+			xtitle("Average TFP Shocks",size(medlarge))  plotregion(lcolor(black)) ///
+			ytitle("Kelley Skewness of TFP Shocks", color(black) size(medlarge))  ///
+			title("", color(blue) size(large)) ///
+			graphregion(color(white))  ///
+			ylabel(, labsize(medlarge)) xlabel(-0.08(0.04)0.08, labsize(medlarge)grid) ///
+			legend(off) graphregion(color(white))
+			graph export "figs/SBC_Fig21D.pdf", replace 
+	restore 
+	
+		
+	*Regression Table 
+		*Save table with results 
+	esttab ksktfp* using  "figs/TABLETFP.tex", replace   ///
+	stats(r2 N, labels(R-squared "N. of Observations "))  star(* 0.1 ** 0.05 *** 0.01) se  	///
+	keep(megs)
+	eststo clear
+	
 	*Regressions and the country-level
 	set more off
 	levelsof iso3 , local(iso) clean
+	levelsof isonum, local(isos)
+		levelsof nai, local(nais)
+		foreach ii of local isos{
+			foreach nn of local nais{
+				sum megs if isonum == `ii' & nai == `nn'
+				replace megs = megs/r(sd) if isonum == `ii' & nai == `nn'
+			}
+		}
+		
+		
 	foreach ii of local iso {
+		disp "`ii'"
 		eststo sk_model`ii': reg ksk2 me2 i.year i.nai if iso3 == "`ii'", vce(cl nai)
 	}
 	
-	esttab sk_model* using  "figs_slide/TABLE_TFP_KSK_CTYES.tex", replace   ///
+	esttab sk_model* using  "figs/TABLE_TFP_KSK_CTYES.tex", replace   ///
 	stats(r2 N, labels(R-squared "N. of Observations "))  star(* 0.1 ** 0.05 *** 0.01) se  	///
 	keep(me2)
 	eststo clear
 		
-	
-*Replica Appendix Table of List of Countries.
-	
-	*Sales 
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Country Annual Sales Growth") cellrange(A1:T706) first clear 
-	bys iso3: keep if _n== 1 | _n == _N
-	keep iso3 year
-	bys iso3: gen tpos = _n
-	tostring tpos, replace
-	
-	reshape wide year, i(iso3) j(tpos) string
-	replace year2 = year2 + 1
-	gen saledata = "X"
-	keep iso3 saledata 
-	save "replicationxls/saledata.dta", replace
-	
-	*Employment
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Country Employment Growth") cellrange(A1:T706) first clear 
-	bys iso3: keep if _n== 1
-	keep iso3 
-	gen empdata = "X"
-	keep iso3 empdata 
-	save "replicationxls/empdata.dta", replace
-	
-	*Stock Returns
-	set more off
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Country Stock Returns") cellrange(A1:Q9646) first clear 
-	keep if num >= 100		// Keep qyater/year cell with more than 100 firms
-							// This keeps 40 countries. It is the data of quaterly GDP growth that reduces the 
-							// number of observations to 28
-	sort iso3 qtr
-	merge 1:1 iso3 qtr using "replicationxls/auxCQ.dta",nogenerate keep(3)
-	bys iso3: keep if _n== 1
-	keep iso3 
-	gen stockdata = "X"
-	keep iso3 stockdata 
-	save "replicationxls/stockdata.dta", replace
-	
-	*Amadeus data on Employment
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Amadeus Employment Growth") cellrange(A1:U236) first clear 
-	bys iso3: keep if _n== 1
-	keep iso3 
-	gen empdataAMA = "X"
-	keep iso3 empdataAMA
-	save "replicationxls/empdataAMA.dta", replace
-	
-	*Amadeus data on Sales
-	import excel using "replicationxls/SBC_USA_AND_CROSSCOUNTRY.xls", sheet("Amadeus Sales Growth") cellrange(A1:U236) first clear 
-	bys iso3: keep if _n== 1
-	keep iso3 
-	gen salesAMA = "X"
-	keep iso3 salesAMA
-	save "replicationxls/salesAMA.dta", replace
-
-	*Put pieces together
-	use "replicationxls/saledata.dta"
-	merge 1:1 iso3 using "replicationxls/empdata.dta", nogenerate
-	merge 1:1 iso3 using "replicationxls/stockdata.dta", nogenerate
-	merge 1:1 iso3 using "replicationxls/salesAMA.dta", nogenerate
-	merge 1:1 iso3 using "replicationxls/empdataAMA.dta", nogenerate
-	
-	erase "replicationxls/empdata.dta"
-	erase "replicationxls/stockdata.dta"
-	erase "replicationxls/salesAMA.dta"
-	erase "replicationxls/empdataAMA.dta"
-	
-	*Notice this saves only the data available. The surce column showed in the paper
-	*is done directly in the table. 
-	sort iso3
-	outsheet using "figs/TABLE_COUNTRIES.csv", replace comma name
 	
 *END OF THE CODE 
 *#########################	

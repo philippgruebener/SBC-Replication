@@ -1,15 +1,14 @@
 /*
 	This file generates the cross sectional moments from BvD Osiris dataset used in
 	Skewed Business Cycles by Salgado/Guvenen/Bloom 
-	(original version SBC_CleanOsirisIndustrial_v2.do)
+	
 	First version April, 12, 2019
-	This  version April, 12, 2019	
+	This  version Dec  , 19, 2019	
 	
 	In case of any suggestions/questions, please contact 
 	Sergio Salgado I.
 	ssalgado@wharton.upenn.edu
-	https://sergiosalgadoi.wordpress.com/
-	
+	https://sergiosalgado.net/
 	
 	The raw data was last updated on April, 11, 2018
 	
@@ -24,11 +23,14 @@ clear all
 set more off 
 
 *Location and datasets
-global dfolder = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/raw"	
+
+cd "../SBC-Replication/"
+	// Main location
+global dfolder = "raw"	
 			// Location of raw data 
-global cdata = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/out"		
+global cdata = "out"		
 			// Location of clean data will be saved 
-global adata = "/home/salga010/Desktop/SBC/DataRes_Apr2018/VerApril2019/agg"
+global adata = "agg"
 			// Location aggregate auxiliary data
 global dname = "OsirisIndustrial_Aprl112018.csv"			
 			// Name of raw data
@@ -36,7 +38,7 @@ global dname = "OsirisIndustrial_Aprl112018.csv"
 global  basecpi = 195.2667  			
 //  Base is 2005 to be consistent with te base of the GDP growth for the WDI
 
-global cleandata = "no"		// Yes if data need to be cleaned
+global cleandata = "yes"		// Yes if data need to be cleaned
 global runmoments = "yes"		// Yes if momments need to be calculated
 
 *#############################################
@@ -305,10 +307,6 @@ compress
 saveold "${cdata}/aux_OSI_`ww'.dta", replace
 }	// END of loop over weigthed
 }	
-*clear 
-*append using "${cdata}/TimeSeries_OSI_w.dta"
-*append using "${cdata}/TimeSeries_OSI_uw.dta"
-***
 
 *#############################################################################
 *-- JOINING THE DATA WITH ISO INFORMATION AND PERFORMING FINAL CLEANING
@@ -356,7 +354,7 @@ foreach ww of local wei{
 	
 *-- Compress and Save for the Regressions 
 	compress 
-	saveold "${cdata}/SBC_TimeSeries_OSI_APR2019_`ww'.dta", replace
+	saveold "${cdata}/SBC_TimeSeries_OSI_DEC2019_`ww'.dta", replace
 	erase "${cdata}/aux_OSI_`ww'.dta"
 }	// END of loop over weigths	
 	
