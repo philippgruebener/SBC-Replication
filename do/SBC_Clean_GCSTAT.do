@@ -23,8 +23,6 @@
 
 clear all
 set more off
-cd "../SBC-Replication/"
-	// Main location
 
 global dfolder = "raw"	
 			// Location of raw data 
@@ -96,11 +94,13 @@ global adata = "agg"
 	by qtr: egen sd_ret = sd(ret)
 	by qtr: egen sk_ret = skew(ret)
 	by qtr: egen p025_ret = pctile(ret), p(2.5)	
-	by qtr: egen p10_ret = pctile(ret), p(10)	
+	by qtr: egen p05_ret = pctile(ret), p(5)	  
+	by qtr: egen p10_ret = pctile(ret), p(10)	  
 	by qtr: egen p25_ret = pctile(ret), p(25)
 	by qtr: egen p50_ret = pctile(ret), p(50)
 	by qtr: egen p75_ret = pctile(ret), p(75)
 	by qtr: egen p90_ret = pctile(ret), p(90)
+	by qtr: egen p95_ret = pctile(ret), p(95)
 	by qtr: egen p975_ret = pctile(ret), p(97.5)
 
 	

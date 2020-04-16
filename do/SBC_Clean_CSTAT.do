@@ -5,7 +5,7 @@
 	Skewed Business Cycles by Salgado/Guvenen/Bloom 
 	(original version SBC_Clean_QUSA_v6.do)
 	First version April, 13, 2019
-	This  version Dec,16 2019	
+	This  version March, 05, 2020	
 	
 	In case of any suggestions/questions, please contact 
 	Sergio Salgado I.
@@ -23,8 +23,8 @@ clear all
 set more off
 cap: ssc install winsor2 	// Used to winsor some outliers. Need internet to install
 
-cd "../SBC-Replication/"
-	// Main location
+cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData"
+			// Main location
 global dfolder = "raw"	
 			// Location of raw data 
 global cdata = "out"		
@@ -37,7 +37,7 @@ global basecpi = 217.07 		//  Base is 2009q4 to be consistent with te base of th
 global abasecpi = 214.5647		// Base of annual CPI
 global aclean = "no"
 global qclean = "no"
-global amomnt = "yes"
+global amomnt = "no"
 global qmomnt = "yes"
 	// Four section
 	// aclean: prepares annual data to calculate moments 
@@ -876,21 +876,25 @@ if "${qmomnt}" == "yes"{
 				gen sk_`vv' = r(skewness)
 				gen ku_`vv' = r(skewness)
 				
-				qui: _pctile   `vv' [aw = `wvar'],  percentiles(2.5 10 12.5 25 37.5 50 62.5 75 87.5 90 97.5)
+				qui: _pctile   `vv' [aw = `wvar'],  percentiles(1 2.5 5 10 12.5 25 37.5 50 62.5 75 87.5 90 95 97.5 99)
 				
-				gen p025_`vv' = r(r1)				
-				gen p10_`vv' = r(r2)
-				gen p125_`vv' = r(r3)
-				gen p25_`vv' = r(r4)
-				gen p375_`vv' = r(r5)
+				gen p01_`vv' = r(r1)				
+				gen p025_`vv' = r(r2)				
+				gen p05_`vv' = r(r3)
+				gen p10_`vv' = r(r4)
+				gen p125_`vv' = r(r5)
+				gen p25_`vv' = r(r6)
+				gen p375_`vv' = r(r7)
 				
-				gen p50_`vv' = r(r6)
+				gen p50_`vv' = r(r8)
 				
-				gen p625_`vv' = r(r7)
-				gen p75_`vv' = r(r8)
-				gen p875_`vv' = r(r9)
-				gen p90_`vv' = r(r10)
-				gen p975_`vv' = r(r11)
+				gen p625_`vv' = r(r9)
+				gen p75_`vv' = r(r10)
+				gen p875_`vv' = r(r11)
+				gen p90_`vv' = r(r12)
+				gen p95_`vv' = r(r13)
+				gen p975_`vv' = r(r14)
+				gen p99_`vv' = r(r15)
 				
 				gen p9010_`vv' = p90_`vv' - p10_`vv'
 				gen p7525_`vv' = p75_`vv' - p25_`vv'
@@ -917,21 +921,25 @@ if "${qmomnt}" == "yes"{
 				gen sk_`vv' = r(skewness)
 				gen ku_`vv' = r(kurtosis)
 				
-				qui: _pctile   `vv',  percentiles(2.5 10 12.5 25 37.5 50 62.5 75 87.5 90 97.5)
+				qui: _pctile   `vv',  percentiles(1 2.5 5 10 12.5 25 37.5 50 62.5 75 87.5 90 95 97.5 99)
 				
-				gen p025_`vv' = r(r1)				
-				gen p10_`vv' = r(r2)
-				gen p125_`vv' = r(r3)
-				gen p25_`vv' = r(r4)
-				gen p375_`vv' = r(r5)
+				gen p01_`vv' = r(r1)				
+				gen p025_`vv' = r(r2)				
+				gen p05_`vv' = r(r3)
+				gen p10_`vv' = r(r4)
+				gen p125_`vv' = r(r5)
+				gen p25_`vv' = r(r6)
+				gen p375_`vv' = r(r7)
 				
-				gen p50_`vv' = r(r6)
+				gen p50_`vv' = r(r8)
 				
-				gen p625_`vv' = r(r7)
-				gen p75_`vv' = r(r8)
-				gen p875_`vv' = r(r9)
-				gen p90_`vv' = r(r10)
-				gen p975_`vv' = r(r11)
+				gen p625_`vv' = r(r9)
+				gen p75_`vv' = r(r10)
+				gen p875_`vv' = r(r11)
+				gen p90_`vv' = r(r12)
+				gen p95_`vv' = r(r13)
+				gen p975_`vv' = r(r14)
+				gen p99_`vv' = r(r15)
 				
 				gen p9010_`vv' = p90_`vv' - p10_`vv'
 				gen p7525_`vv' = p75_`vv' - p25_`vv'
@@ -946,8 +954,8 @@ if "${qmomnt}" == "yes"{
 			***
 					
 			*Saving
-			keep fyearq fqtr qtr tot_* num_* me_* sd_* sk_* ku_* p975_* p90_* p75_* ///
-				p50_* p25_* p10_* p025_* p9010_* p7525_* p9050_* p5010_* ksk_* mku_* cku_*
+			keep fyearq fqtr qtr tot_* num_* me_* sd_* sk_* ku_* p99_* p975_* p95_* p90_* p75_* ///
+				p50_* p25_* p10_* p05_* p025_* p01_* p9010_* p7525_* p9050_* p5010_* ksk_* mku_* cku_*
 			keep if _n == 1
 			compress 
 			save "${cdata}/out_`bb'_`vv'_`yy'_`qq'_`ww'.dta", replace 
@@ -1023,7 +1031,7 @@ if "${qmomnt}" == "yes"{
 
 *-- Save data 
 	order base wei subgroup fyear fqtr qtr
-	saveold "${cdata}/SBC_TimeSeries_CSTAT_QTRLY_DEC2019.dta", replace 	
+	saveold "${cdata}/SBC_TimeSeries_CSTAT_QTRLY_APR2020.dta", replace 	
 
 } // END OF THE QUARTERLY MOMENTS SECTION
  	 

@@ -3,7 +3,7 @@
 	Skewed Business Cycles by Salgado/Guvenen/Bloom 
 	
 	First version April, 12, 2019
-	This  version Dec  , 19, 2019	
+	This  version March, 20, 2019	
 	
 	In case of any suggestions/questions, please contact 
 	Sergio Salgado I.
@@ -24,8 +24,9 @@ set more off
 
 *Location and datasets
 
-cd "../SBC-Replication/"
-	// Main location
+cd "/Users/sergiosalgado/Dropbox/FIRM_SKEWNESS_205/Data/PlotsSep2018/ShareData"
+
+
 global dfolder = "raw"	
 			// Location of raw data 
 global cdata = "out"		
@@ -213,12 +214,14 @@ foreach vv of local varies {
 				gen sk_`vv'_`mm' = r(skewness)		
 				gen ku_`vv'_`mm' = r(kurtosis)	
 				
+				gen p95_`vv'_`mm' = r(p95)	
 				gen p90_`vv'_`mm' = r(p90)	
 					
 				gen p75_`vv'_`mm' = r(p75)
 				gen p50_`vv'_`mm' = r(p50)
 				gen p25_`vv'_`mm' = r(p25)
 				gen p10_`vv'_`mm' = r(p10)
+				gen p05_`vv'_`mm' = r(p5)
 				
 				if "`ww'" == "w"{
 					_pctile `vv'_`mm' [aw = saler], p(2.5 97.5)
@@ -242,7 +245,7 @@ foreach vv of local varies {
 					(p975_`vv'_`mm' - p025_`vv'_`mm')/(p75_`vv'_`mm' - p25_`vv'_`mm')
 						
 				*Saving 
-				keep fyearq cntrycde num* mean* sd* sk* ku* p90* p75* p50* p25* p10* p025* p975* ///
+				keep fyearq cntrycde num* mean* sd* sk* ku* p95* p90* p75* p50* p25* p10* p05* p025* p975* ///
 					p9010* p9050* p5010* ksk* cku*
 				keep if _n == 1
 				
@@ -354,7 +357,7 @@ foreach ww of local wei{
 	
 *-- Compress and Save for the Regressions 
 	compress 
-	saveold "${cdata}/SBC_TimeSeries_OSI_DEC2019_`ww'.dta", replace
+	saveold "${cdata}/SBC_TimeSeries_OSI_APR2020_`ww'.dta", replace
 	erase "${cdata}/aux_OSI_`ww'.dta"
 }	// END of loop over weigths	
 	
