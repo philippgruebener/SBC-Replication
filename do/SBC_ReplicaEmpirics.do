@@ -478,25 +478,25 @@ global spdata = "..."
 			gen ld1519  = log(d1519 )
 			
 			
-			tw  (line dcov xcov, cmissing(n)  color(red) lwidth(medthick) lpattern(solid)) ///
-				(line dgr xgr, cmissing(n)  color(green) lwidth(medthick) lpattern(dash)) ///
-				(line d1519 x1519 , cmissing(n)  ///
+			tw  (line dcov xcov if xcov >= -1.5 & xcov <= 1.5, cmissing(n)  color(red) lwidth(medthick) lpattern(solid)) ///
+				(line dgr xgr   if xgr >= -1.5 & xgr <= 1.5, cmissing(n)  color(green) lwidth(medthick) lpattern(dash)) ///
+				(line d1519 x1519  if x1519 >= -1.5 & x1519 <= 1.5, cmissing(n)  ///
 					color(blue) lwidth(medthick) lpattern(dash_dot)), ///
 				xlabel(-1.5(0.5)1.5,grid) ///
 				graphregion(color(white)) plotregion(lcolor(black))  ///
 				legend(ring(0) position(2) cols(1) order(1 "COVID-19" 2 "Great Recession" 3 "2015 to 2019") region(color(none))) ///
-				xtitle("Cumulative Log Returns") ytitle("Density")
+				xtitle("Cumulative Log Returns Adjusted to a Median of Zero") ytitle("Density")
 				graph export "figs/SBC_Fig2COVID.pdf", replace	
 
 				
-			tw  (line ldcov xcov, cmissing(n)  color(red) lwidth(medthick) lpattern(solid)) ///
-				(line ldgr xgr, cmissing(n)  color(green) lwidth(medthick) lpattern(dash)) ///
-				(line ld1519 x1519 , cmissing(n)  ///
+			tw  (line ldcov xcov if xcov >= -1.5 & xcov <= 1.5, cmissing(n)  color(red) lwidth(medthick) lpattern(solid)) ///
+				(line ldgr xgr   if xgr >= -1.5 & xgr <= 1.5, cmissing(n)  color(green) lwidth(medthick) lpattern(dash)) ///
+				(line ld1519 x1519 if x1519 >= -1.5 & x1519 <= 1.5, cmissing(n)  ///
 					color(blue) lwidth(medthick) lpattern(dash_dot)), ///
 				xlabel(-1.5(0.5)1.5,grid) ///
 				graphregion(color(white)) plotregion(lcolor(black))  ///
 				legend(ring(0) position(2) cols(1) order(1 "COVID-19" 2 "Great Recession" 3 "2015 to 2019") region(color(none))) ///
-				xtitle("Cumulative Log Returns") ytitle("Log Density")
+				xtitle("Cumulative Log Returns Adjusted to a Median of Zero") ytitle("Log Density")
 				graph export "figs/SBC_Fig2LOGCOVID.pdf", replace	
 	
 	
@@ -506,8 +506,8 @@ global spdata = "..."
 	*https://www.dropbox.com/s/e51w9pq9xiwmu0g/CSTAT_SP_COVID.dta?dl=0
 	
 	use "${spdata}/CSTAT_SP_COVID.dta", clear 		
-	global grend = 	  "02mar2009"			// Lowest point if SP500 after start of Great Recession
 	global covend=    "13apr2020"			// Choose date end of the COVID analysis
+	global grend = 	  "28oct2008"			// 35 trading days after the last peak of SP500 in 2008
 	
 	*Save data to calculate the dentisities in MATLAB 
 	*tails are winsorized only for plotting. Moments are calculated using the entire distribution. 
@@ -520,6 +520,7 @@ global spdata = "..."
 			keep if datadate==  d(${covend})
 			drop if zd0prccd == . 
 			keep zd0prccd mkap0
+			order mkap0 zd0prccd 
 			outsheet using "figs/z0covid.csv", replace 
 			drop zd0prccd
 		restore 
@@ -532,6 +533,7 @@ global spdata = "..."
 			keep if datadate==  d(${grend})
 			drop if zd1prccd == . 
 			keep zd1prccd mkap1
+			order mkap1 zd1prccd
 			outsheet using "figs/z0gr.csv", replace 
 			drop zd1prccd
 		restore 
@@ -544,11 +546,12 @@ global spdata = "..."
 			keep if  datadate>= d(01jan2015) & datadate <= d(31jan2019)
 			drop if zd0prccd == . 
 			keep zd0prccd mkap
+			order mkap zd0prccd
 			outsheet using "figs/z0yr1519.csv", replace 
 			drop zd0prccd
 		restore 
 		
-		*After this, run SBC_kdensityM.m to create the csv that generate the figures 
+		*After this, run SBC_kdensityM.m to create the .csv that generate the figures 
 	
 	
 		*Appendix Table 
@@ -565,8 +568,8 @@ global spdata = "..."
 					local period = "Great Recession"
 				}
 				if `vv' == 3{
-					sum d20pprccd if datadate>= d(01jan2019) & datadate <= d(31dec2019), d
-					local period = "2017/2019"
+					sum d20pprccd if datadate>= d(01jan2015) & datadate <= d(31dec2019), d
+					local period = "2015/2019"
 				}
 				clear
 				set obs 1 
@@ -602,7 +605,7 @@ global spdata = "..."
 				}
 				if `vv' == 3{
 					sum d20pprccd if datadate>= d(01jan2015) & datadate <= d(31dec2019) [aw=mkap ], d
-					local period = "2017/2019"
+					local period = "2015/2019"
 				}
 				clear
 				set obs 1 
@@ -633,7 +636,7 @@ global spdata = "..."
 			outsheet using "figs/TABLE_SP_COVID.csv", replace comma 
 				
 				
-*Replica Figure 3A:
+*Replica Figure 2A:
 	*Load
 	import excel using "replicationxls/SBC_CENSUS_LBD.xls", ///
 		sheet("Firm Employment Growth Moments") cellrange(A1:I40) first clear 

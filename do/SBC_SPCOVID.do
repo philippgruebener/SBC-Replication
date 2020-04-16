@@ -34,7 +34,6 @@
 	global covend=    "23mar2020"			// Choose date end of the COVID analysis
 	
 	global grcrash =  "09sep2008"			// Choose date of Great Recession crash
-	global grend = 	  "03feb2009"			// Choose date end of the Great Recession period
 	
 *COMPUSTAT
 *---------------------------------------------------------

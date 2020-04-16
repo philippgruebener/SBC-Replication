@@ -6,7 +6,7 @@
 
 clear all
 close all
-cd '.../SBC-Replication/'
+cd '...'
 
 
 % COVID period 
